@@ -1,15 +1,15 @@
 import { useNavigation } from '@/app/(tabs)/index';
 import { BlurView } from 'expo-blur';
-import { 
-    ChevronLeft, 
-    CreditCard, 
-    Download, 
-    History, 
-    Info, 
-    Receipt, 
-    TrendingDown, 
+import {
+    ChevronLeft,
+    CreditCard,
+    Download,
+    History,
+    Info,
+    Receipt,
+    TrendingDown,
     TrendingUp,
-    Wallet 
+    Wallet
 } from 'lucide-react-native';
 import React from 'react';
 import {
@@ -29,7 +29,7 @@ const { width } = Dimensions.get('window');
 
 const Billing = () => {
     const { goBack } = useNavigation();
-    
+
     // Theme setup (matching achievements style)
     const isDarkMode = false;
     const theme = isDarkMode ? darkTheme : lightTheme;
@@ -43,13 +43,13 @@ const Billing = () => {
     ];
 
     const renderTransaction = ({ item, index }: any) => (
-        <Animated.View 
+        <Animated.View
             entering={FadeInDown.delay(index * 100).duration(500)}
             style={[styles.transactionCard, { backgroundColor: theme.cardBg }]}
         >
             <View style={[styles.iconBox, { backgroundColor: item.type === 'income' ? Palette.success + '15' : Palette.error + '15' }]}>
-                {item.type === 'income' ? 
-                    <TrendingUp size={20} color={Palette.success} /> : 
+                {item.type === 'income' ?
+                    <TrendingUp size={20} color={Palette.success} /> :
                     <TrendingDown size={20} color={Palette.error} />
                 }
             </View>
@@ -71,7 +71,7 @@ const Billing = () => {
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
-            
+
             {/* Header Section */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={goBack} style={styles.backButton}>

@@ -10,8 +10,8 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { Palette } from '../color/color';
-import Animated, { Easing, useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = (width * 0.9) / 3;
@@ -26,28 +26,56 @@ const NavButtons = () => {
     ];
 
     const activeIndex = navItems.findIndex(i => i.target === currentScreen);
-    // Store the measured x-center of each nav item's iconWrapper
-    const itemCenters = useRef<number[]>([]);
-    const translateX = useSharedValue(-100); // off-screen initially
+    // Store the measured absolute positions and sizes of each item relative to the BlurView
+    const itemLayouts = useRef<{x: number, y: number, w: number, h: number}[]>([]);
+    const translateX = useSharedValue(-100);
+    const translateY = useSharedValue(0);
+    const widthVal = useSharedValue(0);
+    const heightVal = useSharedValue(0);
     const opacity = useSharedValue(0);
 
-    const handleLayout = (index: number, x: number, itemWidth: number) => {
-        // calculate center of icon (40px wide) within the nav item
-        itemCenters.current[index] = x + (itemWidth - 40) / 2;
+    const CIRCLE_SIZE = 52;
+
+    const handleLayout = (index: number, x: number, y: number, w: number, h: number) => {
+        const centerX = x + w / 2;
+        const centerY = y + h / 2;
+        
+        itemLayouts.current[index] = { 
+            x: centerX - CIRCLE_SIZE / 2, 
+            y: centerY - CIRCLE_SIZE / 2 - 14,
+            w: CIRCLE_SIZE, 
+            h: CIRCLE_SIZE 
+        };
         // If this is the active one, snap the indicator to it immediately
         if (index === activeIndex) {
-            translateX.value = itemCenters.current[index];
-            opacity.value = withTiming(1, { duration: 150 });
+            translateX.value = itemLayouts.current[index].x;
+            translateY.value = itemLayouts.current[index].y;
+            widthVal.value = itemLayouts.current[index].w;
+            heightVal.value = itemLayouts.current[index].h;
+            opacity.value = withTiming(1, { duration: 100 });
         }
     };
 
     React.useEffect(() => {
-        const center = itemCenters.current[activeIndex];
-        if (activeIndex >= 0 && center !== undefined) {
-            translateX.value = withSpring(center, {
+        const layout = itemLayouts.current[activeIndex];
+        if (activeIndex >= 0 && layout) {
+            translateX.value = withSpring(layout.x, {
                 damping: 20,
                 stiffness: 260,
                 mass: 0.6,
+            });
+            translateY.value = withSpring(layout.y, {
+                damping: 20,
+                stiffness: 260,
+                mass: 0.6,
+            });
+            widthVal.value = withSpring(layout.w, {
+                damping: 20,
+                stiffness: 260,
+            });
+            heightVal.value = withSpring(layout.h, {
+                damping: 20,
+                stiffness: 260,
             });
             opacity.value = withTiming(1, { duration: 150 });
         } else if (activeIndex < 0) {
@@ -56,7 +84,12 @@ const NavButtons = () => {
     }, [activeIndex]);
 
     const indicatorStyle = useAnimatedStyle(() => ({
-        transform: [{ translateX: translateX.value }],
+        transform: [
+            { translateX: translateX.value },
+            { translateY: translateY.value }
+        ],
+        width: widthVal.value,
+        height: heightVal.value,
         opacity: opacity.value,
     }));
 
@@ -79,12 +112,12 @@ const NavButtons = () => {
             >
                 <Animated.View style={[styles.slidingIndicator, indicatorStyle]} />
                 {navItems.map((item, index) => (
-                    <NavItem 
-                        key={index} 
-                        item={item} 
-                        currentScreen={currentScreen} 
+                    <NavItem
+                        key={index}
+                        item={item}
+                        currentScreen={currentScreen}
                         setScreen={setScreen}
-                        onLayout={(x, w) => handleLayout(index, x, w)}
+                        onLayout={(x, y, w, h) => handleLayout(index, x, y, w, h)}
                     />
                 ))}
             </BlurView>
@@ -92,14 +125,15 @@ const NavButtons = () => {
     );
 };
 
-const NavItem = ({ item, currentScreen, setScreen, onLayout }: { 
-    item: any, 
-    currentScreen: string, 
+const NavItem = ({ item, currentScreen, setScreen, onLayout }: {
+    item: any,
+    currentScreen: string,
     setScreen: (s: any) => void,
-    onLayout: (x: number, w: number) => void,
+    onLayout: (x: number, y: number, w: number, h: number) => void,
 }) => {
     const isActive = currentScreen === item.target;
     const displayColor = isActive ? Palette.primary : Palette.gray400;
+    const buttonPos = useRef({ x: 0, y: 0 });
 
     return (
         <TouchableOpacity
@@ -107,15 +141,28 @@ const NavItem = ({ item, currentScreen, setScreen, onLayout }: {
             activeOpacity={0.7}
             onPress={() => setScreen(item.target as any)}
             onLayout={(e) => {
-                onLayout(e.nativeEvent.layout.x, e.nativeEvent.layout.width);
+                buttonPos.current = { x: e.nativeEvent.layout.x, y: e.nativeEvent.layout.y };
             }}
         >
-            <View style={styles.iconWrapper}>
-                <item.icon size={20} color={displayColor} strokeWidth={isActive ? 2.5 : 2} />
+            <View 
+                style={styles.contentWrapper}
+                onLayout={(e) => {
+                    // Report position and size relative to BlurView
+                    onLayout(
+                        buttonPos.current.x + e.nativeEvent.layout.x,
+                        buttonPos.current.y + e.nativeEvent.layout.y,
+                        e.nativeEvent.layout.width,
+                        e.nativeEvent.layout.height
+                    );
+                }}
+            >
+                <View style={styles.iconWrapper}>
+                    <item.icon size={20} color={displayColor} strokeWidth={isActive ? 2.5 : 2} />
+                </View>
+                <Text style={[styles.navText, { color: displayColor, fontWeight: isActive ? '700' : '500' }]}>
+                    {item.name}
+                </Text>
             </View>
-            <Text style={[styles.navText, { color: displayColor, fontWeight: isActive ? '700' : '500' }]}>
-                {item.name}
-            </Text>
         </TouchableOpacity>
     );
 };
@@ -135,7 +182,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         width: width * 0.9,
-        paddingVertical: 14,
+        paddingTop: 22,
+        paddingBottom: 8,
         borderRadius: 35,
         overflow: 'hidden',
         borderWidth: 1.5,
@@ -155,25 +203,27 @@ const styles = StyleSheet.create({
     },
     slidingIndicator: {
         position: 'absolute',
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: Palette.primary + '25',
-        top: 14, // Matches paddingVertical of glassContainer
-        left: 0,
+        borderRadius: 26, // Exactly half of 52 for a perfect circle
+        backgroundColor: Palette.primary + '15', 
+        // Top, Left, Width, Height controlled by reanimated
     },
     navButton: {
         alignItems: 'center',
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+    },
+    contentWrapper: {
+        alignItems: 'center',
+        paddingHorizontal: 16, // More horizontal space for a better capsule look
+        paddingVertical: 10,  // More vertical space to comfortably fit icon + text
+        borderRadius: 25,
     },
     iconWrapper: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 32,
+        height: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 2,
+        marginBottom: 0,
     },
     navText: {
         fontSize: 9,
