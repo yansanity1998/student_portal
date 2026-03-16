@@ -1,4 +1,5 @@
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
 import {
     Animated,
@@ -74,6 +75,33 @@ const News = ({ theme }: any) => {
 
         return () => clearInterval(interval);
     }, [currentIndex]);
+
+    // Marquee Animation for Breaking News
+    const marqueeAnim = useRef(new Animated.Value(0)).current;
+    
+    useEffect(() => {
+        const startMarquee = () => {
+            marqueeAnim.setValue(1);
+            Animated.loop(
+                Animated.timing(marqueeAnim, {
+                    toValue: 0,
+                    duration: 35000, // Slower speed for better readability
+                    useNativeDriver: true,
+                    easing: (t) => t, // Linear movement
+                })
+            ).start();
+        };
+        startMarquee();
+    }, []);
+
+    const marqueeTranslateX = marqueeAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [-(width * 5), width], // Wider range to ensure all 4 news items pass through
+    });
+
+    // Combine all 4 titles and repeat the set 3 times for a seamless infinite loop
+    const combinedTitles = newsData.map(item => `      •   ${item.title.toUpperCase()}`).join(' ');
+    const marqueeText = `${combinedTitles} ${combinedTitles} ${combinedTitles}`;
 
     const renderItem = ({ item, index }: any) => {
         const inputRange = [
@@ -156,7 +184,7 @@ const News = ({ theme }: any) => {
                 decelerationRate="fast"
             />
 
-            {/* Pagination Dots Moved Below */}
+            {/* Pagination Dots */}
             <View style={styles.pagination}>
                 {newsData.map((_, i) => {
                     const opacity = scrollX.interpolate({
@@ -177,6 +205,37 @@ const News = ({ theme }: any) => {
                     );
                 })}
             </View>
+
+            {/* Horizontal Marquee Breaking News */}
+            <TouchableOpacity 
+                style={[styles.breakingSection, { backgroundColor: theme.cardBg }]}
+                activeOpacity={0.8}
+            >
+                <View style={styles.breakingHeader}>
+                    <View style={styles.breakingBadge}>
+                        <Text style={styles.breakingTag}>BREAKING</Text>
+                    </View>
+                    <View style={styles.divider} />
+                </View>
+                
+                <View style={styles.marqueeContainer}>
+                    <Animated.View style={[styles.marqueeInner, { 
+                        transform: [{ translateX: marqueeTranslateX }],
+                    }]}>
+                        <Text style={[styles.breakingTitle, { color: theme.textPrimary }]}>
+                            {marqueeText}
+                        </Text>
+                    </Animated.View>
+
+                    {/* Entrance Fade Effect */}
+                    <LinearGradient
+                        colors={['transparent', theme.cardBg]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.entranceFade}
+                    />
+                </View>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -277,11 +336,73 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 15,
+        marginBottom: 20,
     },
     dot: {
         height: 6,
         borderRadius: 3,
         marginHorizontal: 3,
+    },
+    breakingSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderRadius: 16,
+        marginHorizontal: -10, // Wider to close in on corners
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.05)',
+        overflow: 'hidden', // Clips the marquee
+        ...Platform.select({
+            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8 },
+            android: { elevation: 3 },
+        }),
+    },
+    breakingHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingLeft: 15,
+        backgroundColor: 'inherit', // Match parent
+        zIndex: 2, // Stay above text
+    },
+    breakingBadge: {
+        backgroundColor: Palette.error + '15',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+    },
+    divider: {
+        width: 1,
+        height: 18,
+        backgroundColor: Palette.gray200,
+        marginHorizontal: 12,
+    },
+    breakingTag: {
+        color: Palette.error,
+        fontSize: 10,
+        fontWeight: '900',
+        letterSpacing: 0.5,
+    },
+    marqueeContainer: {
+        flex: 1,
+        overflow: 'hidden',
+        justifyContent: 'center',
+    },
+    marqueeInner: {
+        flexDirection: 'row',
+        width: width * 10, // Massive width to prevent text truncation
+    },
+    breakingTitle: {
+        fontSize: 12,
+        fontWeight: '800',
+        letterSpacing: 0.2,
+    },
+    entranceFade: {
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: 60,
+        zIndex: 3,
     },
 });
 
