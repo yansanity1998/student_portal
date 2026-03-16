@@ -284,18 +284,18 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingTop: 165,
+        paddingTop: 195,
         paddingBottom: 110,
     },
     mainPadding: {
         paddingHorizontal: 20,
     },
     bannerContainer: {
-        height: 150,
+        height: 180,
         width: '100%',
         backgroundColor: Palette.primary,
-        borderBottomLeftRadius: 35,
-        borderBottomRightRadius: 35,
+        borderBottomLeftRadius: 40,
+        borderBottomRightRadius: 40,
         overflow: 'hidden',
         position: 'absolute',
         top: 0,
@@ -329,9 +329,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     profilePic: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
         borderWidth: 2,
         borderColor: Palette.white,
         backgroundColor: Palette.gray200,
@@ -344,9 +344,9 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     studentName: {
-        fontSize: 17,
+        fontSize: 20,
         fontWeight: '800',
-        letterSpacing: -0.3,
+        letterSpacing: -0.5,
     },
     iconButton: {
         width: 40,
