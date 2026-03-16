@@ -24,7 +24,6 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Palette } from '../../color/color';
-import NavButtons from '../NavButtons';
 
 const { width } = Dimensions.get('window');
 
@@ -92,7 +91,6 @@ const Billing = () => {
                 contentContainerStyle={styles.scrollContent}
                 ListHeaderComponent={() => (
                     <Animated.View entering={FadeInUp.duration(600)}>
-                        {/* Balance Card */}
                         <View style={styles.balanceCard}>
                             <BlurView intensity={20} tint="light" style={styles.cardBlur}>
                                 <View style={styles.cardHeader}>
@@ -107,9 +105,6 @@ const Billing = () => {
                                         <Text style={styles.dueDateLabel}>Due Date</Text>
                                         <Text style={styles.dueDateValue}>April 15, 2024</Text>
                                     </View>
-                                    <TouchableOpacity style={styles.payButton}>
-                                        <Text style={styles.payButtonText}>Pay Now</Text>
-                                    </TouchableOpacity>
                                 </View>
                             </BlurView>
                         </View>
@@ -126,8 +121,6 @@ const Billing = () => {
                     </Animated.View>
                 )}
             />
-            
-            <NavButtons />
         </View>
     );
 };

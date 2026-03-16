@@ -14,6 +14,7 @@ import Schedule from '@/components/Quick Access/Schedule';
 import Achievements from '@/components/Main/Achievements/Achievements';
 import Billing from '@/components/Main/Billing/Billing';
 import SplashScreen from '@/components/SplashScreen/SplashScreen';
+import NavButtons from '@/components/Main/NavButtons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useState } from 'react';
 import { View } from 'react-native';
@@ -118,6 +119,7 @@ export default function AppContainer() {
             {currentScreen === 'Achievements' && <Achievements />}
             {currentScreen === 'Billing' && <Billing />}
             {currentScreen === 'SplashScreen' && <SplashScreen onFinish={() => setScreen(targetScreen)} />}
+            {['Home', 'Settings', 'Scan', 'Billing'].includes(currentScreen) && <NavButtons />}
           </View>
         </GestureDetector>
       </GestureHandlerRootView>

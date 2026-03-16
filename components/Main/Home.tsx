@@ -33,7 +33,6 @@ import {
 } from 'react-native';
 import Animated, { SlideInRight, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Palette } from '../color/color';
-import NavButtons from './NavButtons';
 import News from './News';
 
 const { width } = Dimensions.get('window');
@@ -288,8 +287,6 @@ const Home = () => {
                 </View>
 
             </ScrollView>
-
-            <NavButtons />
         </Animated.View>
     );
 };

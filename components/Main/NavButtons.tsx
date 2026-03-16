@@ -1,7 +1,7 @@
 import { useNavigation } from '@/app/(tabs)/index';
 import { BlurView } from 'expo-blur';
 import { Home, ReceiptText, Scan, Settings } from 'lucide-react-native';
-import React from 'react';
+import React, { useRef } from 'react';
 import {
     Dimensions,
     Platform,
@@ -11,13 +11,11 @@ import {
     View,
 } from 'react-native';
 import { Palette } from '../color/color';
+import Animated, { Easing, useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
+const ITEM_WIDTH = (width * 0.9) / 3;
 
-/**
- * Premium Floating Glassmorphism Navigation Buttons
- * Scan button is elevated GCash-style in the center
- */
 const NavButtons = () => {
     const { currentScreen, setScreen } = useNavigation();
 
@@ -27,29 +25,40 @@ const NavButtons = () => {
         { name: 'Settings', icon: Settings, target: 'Settings' },
     ];
 
-    const NavItem = ({ item }: { item: any }) => {
-        const isActive = currentScreen === item.target;
-        const isBilling = item.name === 'Billing';
-        const displayColor = isActive ? Palette.primary : Palette.gray400;
+    const activeIndex = navItems.findIndex(i => i.target === currentScreen);
+    // Store the measured x-center of each nav item's iconWrapper
+    const itemCenters = useRef<number[]>([]);
+    const translateX = useSharedValue(-100); // off-screen initially
+    const opacity = useSharedValue(0);
 
-        return (
-            <TouchableOpacity
-                style={styles.navButton}
-                activeOpacity={0.7}
-                onPress={() => setScreen(item.target as any)}
-            >
-                <View style={[
-                    styles.iconWrapper,
-                    { backgroundColor: isActive ? Palette.primary + '20' : 'transparent' }
-                ]}>
-                    <item.icon size={20} color={displayColor} strokeWidth={isActive ? 2.5 : 2} />
-                </View>
-                <Text style={[styles.navText, { color: displayColor, fontWeight: isActive ? '700' : '500' }]}>
-                    {item.name}
-                </Text>
-            </TouchableOpacity>
-        );
+    const handleLayout = (index: number, x: number, itemWidth: number) => {
+        // calculate center of icon (40px wide) within the nav item
+        itemCenters.current[index] = x + (itemWidth - 40) / 2;
+        // If this is the active one, snap the indicator to it immediately
+        if (index === activeIndex) {
+            translateX.value = itemCenters.current[index];
+            opacity.value = withTiming(1, { duration: 150 });
+        }
     };
+
+    React.useEffect(() => {
+        const center = itemCenters.current[activeIndex];
+        if (activeIndex >= 0 && center !== undefined) {
+            translateX.value = withSpring(center, {
+                damping: 20,
+                stiffness: 260,
+                mass: 0.6,
+            });
+            opacity.value = withTiming(1, { duration: 150 });
+        } else if (activeIndex < 0) {
+            opacity.value = withTiming(0, { duration: 150 });
+        }
+    }, [activeIndex]);
+
+    const indicatorStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: translateX.value }],
+        opacity: opacity.value,
+    }));
 
     const isScanActive = currentScreen === 'Scan';
 
@@ -68,13 +77,50 @@ const NavButtons = () => {
                 tint="extraLight"
                 style={styles.glassContainer}
             >
+                <Animated.View style={[styles.slidingIndicator, indicatorStyle]} />
                 {navItems.map((item, index) => (
-                    <NavItem key={index} item={item} />
+                    <NavItem 
+                        key={index} 
+                        item={item} 
+                        currentScreen={currentScreen} 
+                        setScreen={setScreen}
+                        onLayout={(x, w) => handleLayout(index, x, w)}
+                    />
                 ))}
             </BlurView>
         </View>
     );
 };
+
+const NavItem = ({ item, currentScreen, setScreen, onLayout }: { 
+    item: any, 
+    currentScreen: string, 
+    setScreen: (s: any) => void,
+    onLayout: (x: number, w: number) => void,
+}) => {
+    const isActive = currentScreen === item.target;
+    const displayColor = isActive ? Palette.primary : Palette.gray400;
+
+    return (
+        <TouchableOpacity
+            style={styles.navButton}
+            activeOpacity={0.7}
+            onPress={() => setScreen(item.target as any)}
+            onLayout={(e) => {
+                onLayout(e.nativeEvent.layout.x, e.nativeEvent.layout.width);
+            }}
+        >
+            <View style={styles.iconWrapper}>
+                <item.icon size={20} color={displayColor} strokeWidth={isActive ? 2.5 : 2} />
+            </View>
+            <Text style={[styles.navText, { color: displayColor, fontWeight: isActive ? '700' : '500' }]}>
+                {item.name}
+            </Text>
+        </TouchableOpacity>
+    );
+};
+
+
 
 const styles = StyleSheet.create({
     container: {
@@ -103,9 +149,18 @@ const styles = StyleSheet.create({
             },
             android: {
                 elevation: 10,
-                backgroundColor: 'rgba(255, 255, 255, 0.45)', 
+                backgroundColor: 'rgba(255, 255, 255, 0.45)',
             },
         }),
+    },
+    slidingIndicator: {
+        position: 'absolute',
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: Palette.primary + '25',
+        top: 14, // Matches paddingVertical of glassContainer
+        left: 0,
     },
     navButton: {
         alignItems: 'center',
