@@ -14,6 +14,7 @@ import {
     Alert,
 } from 'react-native';
 import { Palette } from '../color/color';
+import { useNavigation } from '@/app/(tabs)/index';
 
 const { width } = Dimensions.get('window');
 const CAROUSEL_WIDTH = width - 40;
@@ -206,36 +207,38 @@ const News = ({ theme }: any) => {
                 })}
             </View>
 
-            {/* Horizontal Marquee Breaking News */}
-            <TouchableOpacity 
-                style={[styles.breakingSection, { backgroundColor: theme.cardBg }]}
-                activeOpacity={0.8}
-            >
-                <View style={styles.breakingHeader}>
-                    <View style={styles.breakingBadge}>
-                        <Text style={styles.breakingTag}>BREAKING</Text>
+            {/* Horizontal Marquee Breaking News - Conditional Rendering */}
+            {useNavigation().showBreakingNews && (
+                <TouchableOpacity 
+                    style={[styles.breakingSection, { backgroundColor: theme.cardBg }]}
+                    activeOpacity={0.8}
+                >
+                    <View style={styles.breakingHeader}>
+                        <View style={styles.breakingBadge}>
+                            <Text style={styles.breakingTag}>BREAKING</Text>
+                        </View>
+                        <View style={styles.divider} />
                     </View>
-                    <View style={styles.divider} />
-                </View>
-                
-                <View style={styles.marqueeContainer}>
-                    <Animated.View style={[styles.marqueeInner, { 
-                        transform: [{ translateX: marqueeTranslateX }],
-                    }]}>
-                        <Text style={[styles.breakingTitle, { color: theme.textPrimary }]}>
-                            {marqueeText}
-                        </Text>
-                    </Animated.View>
+                    
+                    <View style={styles.marqueeContainer}>
+                        <Animated.View style={[styles.marqueeInner, { 
+                            transform: [{ translateX: marqueeTranslateX }],
+                        }]}>
+                            <Text style={[styles.breakingTitle, { color: theme.textPrimary }]}>
+                                {marqueeText}
+                            </Text>
+                        </Animated.View>
 
-                    {/* Entrance Fade Effect */}
-                    <LinearGradient
-                        colors={['transparent', theme.cardBg]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.entranceFade}
-                    />
-                </View>
-            </TouchableOpacity>
+                        {/* Entrance Fade Effect */}
+                        <LinearGradient
+                            colors={['transparent', theme.cardBg]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.entranceFade}
+                        />
+                    </View>
+                </TouchableOpacity>
+            )}
         </View>
     );
 };

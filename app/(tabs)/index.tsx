@@ -12,6 +12,7 @@ import Tasks from '@/components/Quick Access/Tasks';
 import Message from '@/components/Quick Access/Message';
 import Schedule from '@/components/Quick Access/Schedule';
 import SplashScreen from '@/components/SplashScreen/SplashScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useState } from 'react';
 import { View } from 'react-native';
 import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -23,6 +24,8 @@ const ScreenContext = createContext({
   setScreen: (screen: Screen, target?: Screen) => { },
   goBack: () => { },
   canGoBack: false,
+  showBreakingNews: true,
+  setShowBreakingNews: (val: boolean) => { },
 });
 
 export const useNavigation = () => useContext(ScreenContext);
@@ -31,6 +34,26 @@ export default function AppContainer() {
   const [currentScreen, setScreenState] = useState<Screen>('SplashScreen');
   const [targetScreen, setTargetScreen] = useState<Screen>('Login');
   const [history, setHistory] = useState<Screen[]>([]);
+  const [showBreakingNews, setShowBreakingNewsState] = useState(true);
+
+  React.useEffect(() => {
+    const loadBreakingNewsPref = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('show_breaking_news');
+        if (saved !== null) {
+          setShowBreakingNewsState(JSON.parse(saved));
+        }
+      } catch (e) {}
+    };
+    loadBreakingNewsPref();
+  }, []);
+
+  const setShowBreakingNews = async (val: boolean) => {
+    setShowBreakingNewsState(val);
+    try {
+      await AsyncStorage.setItem('show_breaking_news', JSON.stringify(val));
+    } catch (e) {}
+  };
 
   const setScreen = (screen: Screen, target?: Screen) => {
     if (screen === 'SplashScreen' && target) {
@@ -66,7 +89,14 @@ export default function AppContainer() {
     .runOnJS(true);
 
   return (
-    <ScreenContext.Provider value={{ currentScreen, setScreen, goBack, canGoBack: history.length > 0 }}>
+    <ScreenContext.Provider value={{ 
+      currentScreen, 
+      setScreen, 
+      goBack, 
+      canGoBack: history.length > 0,
+      showBreakingNews,
+      setShowBreakingNews
+    }}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <GestureDetector gesture={swipeBackGesture}>
           <View style={{ flex: 1, backgroundColor: '#F0F9F9' }}>

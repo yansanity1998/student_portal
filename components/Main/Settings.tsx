@@ -8,6 +8,7 @@ import {
     Languages,
     LogOut,
     Moon,
+    Newspaper,
     ShieldCheck,
     Sun,
     User
@@ -28,12 +29,8 @@ import {
 import { Palette } from '../color/color';
 import NavButtons from './NavButtons';
 
-/**
- * Modern System-Aligned Settings Screen
- * Features: Profile Section, Account Settings, App Preferences, Push Notifications, Support, Sign Out
- */
 const Settings = () => {
-    const { setScreen } = useNavigation();
+    const { setScreen, showBreakingNews, setShowBreakingNews } = useNavigation();
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [notifications, setNotifications] = useState(true);
     const [biometrics, setBiometrics] = useState(false);
@@ -172,6 +169,14 @@ const Settings = () => {
                             value={notifications}
                             onValueChange={setNotifications}
                             iconColor={Palette.orange}
+                        />
+                        <SettingRow
+                            icon={Newspaper}
+                            label="Breaking News"
+                            type="switch"
+                            value={showBreakingNews}
+                            onValueChange={setShowBreakingNews}
+                            iconColor={Palette.primary}
                         />
                         <SettingRow icon={Languages} label="Language" iconColor={Palette.brandBlue} />
                     </View>
