@@ -49,20 +49,39 @@ const Attendance = () => {
     const { setScreen } = useNavigation();
     const [selectedMonth, setSelectedMonth] = useState('March 2026');
 
+    // Theme setup
+    const isDarkMode = false;
+    const theme = isDarkMode ? {
+        background: Palette.black,
+        cardBg: '#121212',
+        textPrimary: Palette.white,
+        textSecondary: Palette.gray400,
+        border: Palette.gray800,
+    } : {
+        background: '#F8FBFA',
+        cardBg: Palette.white,
+        textPrimary: Palette.gray900,
+        textSecondary: Palette.gray500,
+        border: Palette.gray100,
+    };
+
     const renderStatCard = (item: any, index: number) => {
         const Icon = item.icon;
         return (
             <Animated.View 
                 entering={FadeInUp.delay(index * 100)}
                 key={item.label} 
-                style={[styles.statCard, { borderLeftColor: item.color }]}
+                style={[styles.statCard, { backgroundColor: theme.cardBg }]}
             >
-                <View style={[styles.statIconContainer, { backgroundColor: item.color + '15' }]}>
-                    <Icon size={20} color={item.color} />
-                </View>
-                <View>
-                    <Text style={styles.statValue}>{item.value}</Text>
-                    <Text style={styles.statLabel}>{item.label}</Text>
+                <View style={[styles.statusIndicator, { backgroundColor: item.color, width: 4 }]} />
+                <View style={styles.statCardContent}>
+                    <View style={[styles.statIconContainer, { backgroundColor: item.color + '15' }]}>
+                        <Icon size={20} color={item.color} />
+                    </View>
+                    <View>
+                        <Text style={[styles.statValue, { color: theme.textPrimary }]}>{item.value}</Text>
+                        <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{item.label}</Text>
+                    </View>
                 </View>
             </Animated.View>
         );
@@ -308,15 +327,21 @@ const styles = StyleSheet.create({
     },
     statCard: {
         width: (width - 60) / 3,
+        flexDirection: 'row',
         backgroundColor: Palette.white,
-        padding: 12,
         borderRadius: 16,
-        borderLeftWidth: 4,
+        borderTopLeftRadius: 0,
+        borderBottomLeftRadius: 0,
         elevation: 2,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.03,
         shadowRadius: 5,
+        overflow: 'hidden',
+    },
+    statCardContent: {
+        padding: 12,
+        flex: 1,
     },
     statIconContainer: {
         width: 32,
@@ -389,6 +414,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: Palette.white,
         borderRadius: 18,
+        borderTopLeftRadius: 0,
+        borderBottomLeftRadius: 0,
         marginBottom: 12,
         overflow: 'hidden',
         elevation: 3,
