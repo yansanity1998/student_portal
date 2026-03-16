@@ -1,0 +1,534 @@
+import { useNavigation } from '@/app/(tabs)/index';
+import * as Haptics from 'expo-haptics';
+import { 
+    Bell,
+    BookOpen, 
+    Calendar,
+    CalendarDays, 
+    CheckSquare, 
+    ClipboardCheck, 
+    Clock, 
+    GraduationCap, 
+    MapPin, 
+    MessageSquare,
+    Moon,
+    Sun,
+    Users,
+    Trophy,
+    Star,
+    Medal,
+    ChevronRight
+} from 'lucide-react-native';
+import React, { useState } from 'react';
+import {
+    Dimensions,
+    Image,
+    Platform,
+    Pressable,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import Animated, { SlideInRight, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { Palette } from '../color/color';
+import NavButtons from './NavButtons';
+import News from './News';
+
+const { width } = Dimensions.get('window');
+
+const QuickActionCard = ({ action, theme, onPress }: any) => {
+    const scale = useSharedValue(1);
+    const opacity = useSharedValue(1);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: scale.value }],
+        opacity: opacity.value,
+    }));
+
+    const handlePressIn = () => {
+        scale.value = withSpring(0.92, { damping: 10, stiffness: 300 });
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+    };
+
+    const handlePressOut = () => {
+        scale.value = withSpring(1);
+    };
+
+    return (
+        <Pressable
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            onPress={onPress}
+            style={({ hovered, pressed }) => [
+                styles.gridItem,
+                { backgroundColor: theme.cardBg },
+                hovered && {
+                    backgroundColor: theme.cardBg,
+                    transform: [{ translateY: -2 }],
+                    shadowOpacity: 0.1,
+                    shadowRadius: 12,
+                    borderColor: action.color + '40',
+                    borderWidth: 1,
+                },
+                pressed && { opacity: 0.8 }
+            ]}
+        >
+            <Animated.View style={[styles.gridItemContent, animatedStyle]}>
+                <View style={[styles.gridIcon, { backgroundColor: action.color + '15' }]}>
+                    <action.icon size={24} color={action.color} strokeWidth={2.5} />
+                </View>
+                <Text style={[styles.gridLabel, { color: theme.textPrimary }]}>{action.name}</Text>
+            </Animated.View>
+        </Pressable>
+    );
+};
+
+const Home = () => {
+    const { setScreen } = useNavigation();
+    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isParentMode, setIsParentMode] = useState(false);
+
+    // Theme-aware styles
+    const theme = isDarkMode ? darkTheme : lightTheme;
+
+    const timetable = [
+        { time: '08:30 AM', subject: 'Advanced Mathematics', room: 'Lab 4B', color: Palette.primary, active: true },
+        { time: '10:45 AM', subject: 'Physics of Motion', room: 'Hall A', color: Palette.sky, active: false },
+        { time: '01:30 PM', subject: 'Computer Science', room: 'Digital Hub', color: Palette.violet, active: false },
+    ];
+
+    const quickActions = [
+        { name: 'Schedule', icon: CalendarDays, color: Palette.primary, target: 'Schedule' },
+        { name: 'Grades', icon: GraduationCap, color: Palette.brandBlue, target: 'Grades' },
+        { name: 'Attendance', icon: ClipboardCheck, color: Palette.success, target: 'Attendance' },
+        { name: 'Courses', icon: BookOpen, color: Palette.violet, target: 'Courses' },
+        { name: 'Tasks', icon: CheckSquare, color: Palette.orange, target: 'Tasks' },
+        { name: 'Messages', icon: MessageSquare, color: Palette.sky, target: 'Messages' },
+    ];
+
+    const StatCard = ({ label, value, icon: Icon, color }: any) => (
+        <View style={[styles.statCard, { backgroundColor: theme.cardBg }]}>
+            <View style={[styles.statIconContainer, { backgroundColor: color + '15' }]}>
+                <Icon size={18} color={color} strokeWidth={2.5} />
+            </View>
+            <View>
+                <Text style={[styles.statValue, { color: theme.textPrimary }]}>{value}</Text>
+                <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{label}</Text>
+            </View>
+        </View>
+    );
+
+    return (
+        <Animated.View entering={SlideInRight.duration(180)} style={[styles.container, { backgroundColor: theme.background }]}>
+            <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+
+            {/* Compact Edge-to-Edge Trendy Banner Section (Sticky/Fixed) */}
+            <View style={styles.bannerContainer}>
+                <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1510070112810-d4e9a46d9e91?q=80&w=2069&auto=format&fit=crop' }}
+                    style={styles.bannerImage}
+                />
+
+                {/* Unified Horizontal Content Overlay */}
+                <View style={[styles.bannerContent, { backgroundColor: Palette.primary + 'B3' }]}>
+                    <View style={styles.profileSection}>
+                        <Image
+                            source={{ uri: 'https://i.pravatar.cc/150?u=student123' }}
+                            style={styles.profilePic}
+                        />
+                        <View style={styles.welcomeTextContainer}>
+                            <Text style={[styles.studentName, { color: Palette.white }]}>Jesper Ian Barila</Text>
+                            <Text style={[styles.greeting, { color: 'rgba(255,255,255,0.9)' }]}>ID: 2024-0012</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.headerRightActions}>
+                        <TouchableOpacity
+                            style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
+                            onPress={() => setIsDarkMode(!isDarkMode)}
+                        >
+                            {isDarkMode ? <Sun size={20} color={Palette.white} /> : <Moon size={20} color={Palette.white} />}
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                            <Bell size={20} color={Palette.white} />
+                            <View style={styles.notificationDot} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+
+                {/* Main Content with Padding */}
+                <View style={styles.mainPadding}>
+                    
+                    {/* Quick Access Grid (Moved to Upper) */}
+                    <Text style={[styles.sectionTitle, styles.labelMargin, { color: theme.textPrimary }]}>Quick Access</Text>
+                    <View style={styles.grid}>
+                        {quickActions.map((action, idx) => (
+                            <QuickActionCard 
+                                key={idx} 
+                                action={action} 
+                                theme={theme} 
+                                onPress={() => action.target && setScreen(action.target as any)}
+                            />
+                        ))}
+                    </View>
+
+                    {/* News Carousel Section (Now upper, since stats removed) */}
+                    <News theme={theme} />
+
+                    <TouchableOpacity
+                        style={[styles.parentToggle, { backgroundColor: isParentMode ? Palette.primary : theme.cardBg }]}
+                        onPress={() => setIsParentMode(!isParentMode)}
+                    >
+                        <Users
+                            size={22}
+                            color={isParentMode ? Palette.white : Palette.primary}
+                        />
+                        <Text style={[styles.parentToggleText, { color: isParentMode ? Palette.white : theme.textPrimary }]}>
+                            {isParentMode ? 'Parent Monitoring Active' : 'Switch to Parent Access'}
+                        </Text>
+                        <ChevronRight
+                            size={18}
+                            color={isParentMode ? Palette.white : theme.textSecondary}
+                        />
+                    </TouchableOpacity>
+
+                    {/* Gamified Progress Tracker */}
+                    <View style={[styles.section, styles.progressSection, { backgroundColor: theme.cardBg }]}>
+                        <View style={styles.sectionHeader}>
+                            <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Learning Journey</Text>
+                            <TouchableOpacity>
+                                <Text style={{ color: Palette.primary }}>All Badges</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.progressBarBg}>
+                            <View style={[styles.progressBarFill, { width: '75%', backgroundColor: Palette.primary }]} />
+                        </View>
+                        <View style={styles.badgeRow}>
+                            {[Trophy, Star, Medal].map((Icon, idx) => (
+                                <View key={idx} style={[styles.badgeContainer, { opacity: 1 }]}>
+                                    <Icon size={24} color={Palette.warning} />
+                                </View>
+                            ))}
+                            <Text style={[styles.progressText, { color: theme.textSecondary }]}>750 / 1000 XP</Text>
+                        </View>
+                    </View>
+
+
+                    {/* Timetable Section */}
+                    <View style={styles.sectionHeader}>
+                        <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Today's Timetable</Text>
+                        <Text style={{ color: theme.textSecondary }}>Monday, Mar 10</Text>
+                    </View>
+                    {timetable.map((item, idx) => (
+                        <View key={idx} style={[styles.timetableCard, { backgroundColor: theme.cardBg }]}>
+                            <View style={[styles.timeStrip, { backgroundColor: item.color }]} />
+                            <View style={styles.timetableInfo}>
+                                <Text style={[styles.subjectText, { color: theme.textPrimary }]}>{item.subject}</Text>
+                                <View style={styles.row}>
+                                    <MapPin size={14} color={theme.textSecondary} />
+                                    <Text style={[styles.detailText, { color: theme.textSecondary }]}>{item.room}</Text>
+                                    <Clock size={14} color={theme.textSecondary} style={{ marginLeft: 15 }} />
+                                    <Text style={[styles.detailText, { color: theme.textSecondary }]}>{item.time}</Text>
+                                </View>
+                            </View>
+                            {item.active && (
+                                <View style={styles.activeTag}>
+                                    <Text style={styles.activeTagText}>NOW</Text>
+                                </View>
+                            )}
+                        </View>
+                    ))}
+                </View>
+
+            </ScrollView>
+
+            <NavButtons />
+        </Animated.View>
+    );
+};
+
+// Themes
+const lightTheme = {
+    background: '#F0F9F9',
+    cardBg: Palette.white,
+    textPrimary: Palette.gray900,
+    textSecondary: Palette.gray500,
+    border: Palette.gray200,
+};
+
+const darkTheme = {
+    background: Palette.black,
+    cardBg: '#121212',
+    textPrimary: Palette.white,
+    textSecondary: Palette.gray400,
+    border: Palette.gray800,
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    scrollContent: {
+        paddingTop: 165,
+        paddingBottom: 110,
+    },
+    mainPadding: {
+        paddingHorizontal: 20,
+    },
+    bannerContainer: {
+        height: 150,
+        width: '100%',
+        backgroundColor: Palette.primary,
+        borderBottomLeftRadius: 35,
+        borderBottomRightRadius: 35,
+        overflow: 'hidden',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        elevation: 10,
+    },
+    bannerImage: {
+        width: '100%',
+        height: '100%',
+        opacity: 0.7,
+    },
+    bannerContent: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        paddingHorizontal: 20,
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    profileSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    headerRightActions: {
+        flexDirection: 'row',
+    },
+    profilePic: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        borderWidth: 2,
+        borderColor: Palette.white,
+        backgroundColor: Palette.gray200,
+    },
+    welcomeTextContainer: {
+        marginLeft: 12,
+    },
+    greeting: {
+        fontSize: 11,
+        fontWeight: '500',
+    },
+    studentName: {
+        fontSize: 17,
+        fontWeight: '800',
+        letterSpacing: -0.3,
+    },
+    iconButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 10,
+    },
+    notificationDot: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: Palette.error,
+        borderWidth: 1.5,
+        borderColor: Palette.white,
+    },
+    statsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+    },
+    statCard: {
+        flex: 0.48,
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 15,
+        borderRadius: 16,
+        ...Platform.select({
+            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8 },
+            android: { elevation: 2 },
+        }),
+    },
+    statIconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    statValue: {
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    statLabel: {
+        fontSize: 12,
+    },
+    parentToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 15,
+        borderRadius: 16,
+        marginTop: 20,
+    },
+    parentToggleText: {
+        flex: 1,
+        marginLeft: 12,
+        fontWeight: '600',
+    },
+    section: {
+        marginTop: 20,
+        padding: 20,
+        borderRadius: 20,
+    },
+    progressSection: {
+        ...Platform.select({
+            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8 },
+            android: { elevation: 4 },
+        }),
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 15,
+        marginTop: 25,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+    },
+    progressBarBg: {
+        height: 8,
+        backgroundColor: Palette.gray200,
+        borderRadius: 4,
+        marginBottom: 15,
+    },
+    progressBarFill: {
+        height: 8,
+        borderRadius: 4,
+    },
+    badgeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    badgeContainer: {
+        marginRight: 15,
+    },
+    progressText: {
+        marginLeft: 'auto',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    labelMargin: {
+        marginTop: 30,
+        marginBottom: 15,
+    },
+    grid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    gridItem: {
+        width: (width - 60) / 3, // Changed to 3 columns for 6 items
+        borderRadius: 20,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: 'transparent',
+        ...Platform.select({
+            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8 },
+            android: { elevation: 3 },
+            web: { transition: 'all 0.3s ease' }
+        }),
+    },
+    gridItemContent: {
+        padding: 12, // Reduced padding for 3-column layout
+        alignItems: 'center',
+        width: '100%',
+    },
+    gridIcon: {
+        width: 44, // Slightly smaller icons for 3-column
+        height: 44,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    gridLabel: {
+        fontSize: 11, // Adjusted font size for 3-column
+        fontWeight: '700',
+        marginTop: 4,
+    },
+    timetableCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 15,
+        borderRadius: 18,
+        marginBottom: 12,
+        overflow: 'hidden',
+    },
+    timeStrip: {
+        width: 4,
+        height: '100%',
+        borderRadius: 2,
+        position: 'absolute',
+        left: 0,
+    },
+    timetableInfo: {
+        marginLeft: 10,
+        flex: 1,
+    },
+    subjectText: {
+        fontSize: 16,
+        fontWeight: '700',
+        marginBottom: 4,
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    detailText: {
+        fontSize: 12,
+        marginLeft: 4,
+    },
+    activeTag: {
+        backgroundColor: Palette.success,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+    },
+    activeTagText: {
+        color: Palette.white,
+        fontSize: 10,
+        fontWeight: '800',
+    },
+});
+
+export default Home;
