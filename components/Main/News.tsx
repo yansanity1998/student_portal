@@ -24,24 +24,36 @@ const newsData = [
         title: 'ICI Campus Expansion',
         description: 'New high-tech laboratories coming soon to the north wing.',
         image: require('../../assets/images/ici1.jpg'),
+        date: 'Oct 24, 2026',
+        status: 'HOT',
+        statusColor: Palette.error,
     },
     {
         id: '2',
         title: 'Academic Excellence',
         description: 'Celebrating our top performers in the recent semester.',
         image: require('../../assets/images/ici 2.jpg'),
+        date: 'Oct 22, 2026',
+        status: 'NEW',
+        statusColor: Palette.success,
     },
     {
         id: '3',
         title: 'Sports Festival 2026',
         description: 'Join the annual sports meet this coming weekend!',
         image: require('../../assets/images/ici 3.jpg'),
+        date: 'Oct 20, 2026',
+        status: 'TRENDING',
+        statusColor: Palette.sky,
     },
     {
         id: '4',
         title: 'Tech Innovation Summit',
         description: 'Showcasing the latest student projects and research.',
         image: require('../../assets/images/ici 4.jpg'),
+        date: 'Oct 18, 2026',
+        status: 'NEW',
+        statusColor: Palette.orange,
     },
 ];
 
@@ -93,13 +105,23 @@ const News = ({ theme }: any) => {
                 >
                     <Image source={item.image} style={styles.image} />
                     
+                    {/* Modern Status Badge */}
+                    <View style={styles.badgeWrapper}>
+                        <View style={[styles.statusBadge, { backgroundColor: item.statusColor }]}>
+                            <Text style={styles.statusText}>{item.status}</Text>
+                        </View>
+                    </View>
+
                     <BlurView 
                         intensity={Platform.OS === 'ios' ? 60 : 80} 
                         tint="dark" 
                         style={styles.blurOverlay}
                     >
                         <View style={styles.textContainer}>
-                            <Text style={styles.newsTitle}>{item.title}</Text>
+                            <View style={styles.titleRow}>
+                                <Text style={styles.newsTitle} numberOfLines={1}>{item.title}</Text>
+                                <Text style={styles.dateText}>{item.date}</Text>
+                            </View>
                             <Text style={styles.newsDesc} numberOfLines={2}>
                                 {item.description}
                             </Text>
@@ -206,14 +228,49 @@ const styles = StyleSheet.create({
     },
     newsTitle: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '800',
-        marginBottom: 2,
+        flex: 1,
+        marginRight: 10,
     },
     newsDesc: {
-        color: 'rgba(255,255,255,0.85)',
-        fontSize: 12,
+        color: 'rgba(255,255,255,0.75)',
+        fontSize: 11,
         fontWeight: '500',
+        marginTop: 2,
+    },
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 2,
+    },
+    dateText: {
+        color: 'rgba(255,255,255,0.6)',
+        fontSize: 10,
+        fontWeight: '700',
+    },
+    badgeWrapper: {
+        position: 'absolute',
+        top: 15,
+        right: 15,
+        zIndex: 10,
+    },
+    statusBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 10,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+    },
+    statusText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: '900',
+        letterSpacing: 0.5,
     },
     pagination: {
         flexDirection: 'row',

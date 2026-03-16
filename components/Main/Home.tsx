@@ -1,23 +1,22 @@
 import { useNavigation } from '@/app/(tabs)/index';
 import * as Haptics from 'expo-haptics';
-import { 
+import {
     Bell,
-    BookOpen, 
-    Calendar,
-    CalendarDays, 
-    CheckSquare, 
-    ClipboardCheck, 
-    Clock, 
-    GraduationCap, 
-    MapPin, 
+    BookOpen,
+    CalendarDays,
+    CheckSquare,
+    ChevronRight,
+    ClipboardCheck,
+    Clock,
+    GraduationCap,
+    MapPin,
+    Medal,
     MessageSquare,
     Moon,
-    Sun,
-    Users,
-    Trophy,
     Star,
-    Medal,
-    ChevronRight
+    Sun,
+    Trophy,
+    Users
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
@@ -139,49 +138,53 @@ const Home = () => {
 
                 {/* Unified Horizontal Content Overlay */}
                 <View style={[styles.bannerContent, { backgroundColor: Palette.primary + 'B3' }]} pointerEvents="box-none">
-                    <View style={styles.profileSection}>
-                        <Image
-                            source={{ uri: 'https://i.pravatar.cc/150?u=student123' }}
-                            style={styles.profilePic}
-                        />
-                        <View style={styles.welcomeTextContainer}>
-                            <Text style={[styles.studentName, { color: Palette.white }]}>Jesper Ian Barila</Text>
-                            <Text style={[styles.greeting, { color: 'rgba(255,255,255,0.9)' }]}>ID: 2024-0012</Text>
-                        </View>
-                    </View>
+                    <Text style={[styles.systemTitle, { color: Palette.white }]} numberOfLines={1}>Welcome to ICI Student Portal</Text>
 
-                    <View style={styles.headerRightActions}>
-                        <TouchableOpacity
-                            style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
-                            onPress={() => setIsDarkMode(!isDarkMode)}
-                        >
-                            {isDarkMode ? <Sun size={20} color={Palette.white} /> : <Moon size={20} color={Palette.white} />}
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                            <Bell size={20} color={Palette.white} />
-                            <View style={styles.notificationDot} />
-                        </TouchableOpacity>
+                    <View style={styles.headerMainRow}>
+                        <View style={styles.profileRow}>
+                            <Image
+                                source={{ uri: 'https://i.pravatar.cc/150?u=student123' }}
+                                style={styles.profilePic}
+                            />
+                            <View style={styles.welcomeTextContainer}>
+                                <Text style={[styles.studentName, { color: Palette.white }]} numberOfLines={1}>Jesper Ian</Text>
+                                <Text style={[styles.greeting, { color: 'rgba(255,255,255,0.9)' }]} numberOfLines={1}>ID: 2024-0012</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.headerRightActions}>
+                            <TouchableOpacity
+                                style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
+                                onPress={() => setIsDarkMode(!isDarkMode)}
+                            >
+                                {isDarkMode ? <Sun size={20} color={Palette.white} /> : <Moon size={20} color={Palette.white} />}
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                                <Bell size={20} color={Palette.white} />
+                                <View style={styles.notificationDot} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </View>
 
-            <ScrollView 
-                showsVerticalScrollIndicator={false} 
+            <ScrollView
+                showsVerticalScrollIndicator={false}
                 style={{ flex: 1 }}
                 contentContainerStyle={styles.scrollContent}
             >
 
                 {/* Main Content with Padding */}
                 <View style={styles.mainPadding}>
-                    
+
                     {/* Quick Access Grid (Moved to Upper) */}
                     <Text style={[styles.sectionTitle, styles.labelMargin, { color: theme.textPrimary }]}>Quick Access</Text>
                     <View style={styles.grid}>
                         {quickActions.map((action, idx) => (
-                            <QuickActionCard 
-                                key={idx} 
-                                action={action} 
-                                theme={theme} 
+                            <QuickActionCard
+                                key={idx}
+                                action={action}
+                                theme={theme}
                                 onPress={() => action.target && setScreen(action.target as any)}
                             />
                         ))}
@@ -316,14 +319,19 @@ const styles = StyleSheet.create({
         right: 0,
         top: 0,
         paddingHorizontal: 20,
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 15,
+        paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 10 : 25,
+        flexDirection: 'column',
+    },
+    headerMainRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        marginTop: 10,
     },
-    profileSection: {
+    profileRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        flex: 1,
     },
     headerRightActions: {
         flexDirection: 'row',
@@ -338,6 +346,7 @@ const styles = StyleSheet.create({
     },
     welcomeTextContainer: {
         marginLeft: 12,
+        flex: 1,
     },
     greeting: {
         fontSize: 11,
@@ -347,6 +356,12 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: '800',
         letterSpacing: -0.5,
+    },
+    systemTitle: {
+        fontSize: 24,
+        fontWeight: '900',
+        letterSpacing: -0.8,
+        marginBottom: 2,
     },
     iconButton: {
         width: 40,
