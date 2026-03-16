@@ -1,17 +1,14 @@
 import { useNavigation } from '@/app/(tabs)/index';
-import { 
-    Trophy, 
-    Star, 
-    Medal, 
-    ChevronLeft,
-    ChevronRight,
+import { BlurView } from 'expo-blur';
+import {
     Award,
-    Target,
-    Zap,
-    Flame,
     BookOpen,
-    GraduationCap,
-    Users
+    ChevronLeft,
+    Flame,
+    Target,
+    Trophy,
+    Users,
+    Zap
 } from 'lucide-react-native';
 import React from 'react';
 import {
@@ -25,14 +22,13 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { Palette } from '../../color/color';
-import { BlurView } from 'expo-blur';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
+import { Palette } from '../../color/color';
 
 const { width } = Dimensions.get('window');
 
 const AchievementCard = ({ item, theme }: any) => (
-    <Animated.View 
+    <Animated.View
         entering={FadeInDown.delay(item.index * 100).duration(500)}
         style={[styles.card, { backgroundColor: theme.cardBg }]}
     >
@@ -47,7 +43,7 @@ const AchievementCard = ({ item, theme }: any) => (
             <Text style={[styles.cardDesc, { color: theme.textSecondary }]} numberOfLines={2}>
                 {item.description}
             </Text>
-            
+
             <View style={styles.progressContainer}>
                 <View style={[styles.progressBg, { backgroundColor: theme.border }]}>
                     <View style={[styles.progressFill, { width: `${item.progress}%`, backgroundColor: item.color }]} />
@@ -62,56 +58,56 @@ const AchievementCard = ({ item, theme }: any) => (
 
 const Achievements = () => {
     const { goBack, currentScreen } = useNavigation();
-    
+
     // In a real app, this would be passed or fetched via context
-    const isDarkMode = false; 
+    const isDarkMode = false;
     const theme = isDarkMode ? darkTheme : lightTheme;
 
     const achievements = [
-        { 
+        {
             index: 0,
-            title: 'Top Performer', 
-            description: 'Maintain a GPA of 3.8 or higher for the current semester.', 
-            icon: Trophy, 
-            color: Palette.warning, 
-            points: 500, 
-            progress: 100 
+            title: 'Top Performer',
+            description: 'Maintain a GPA of 3.8 or higher for the current semester.',
+            icon: Trophy,
+            color: Palette.warning,
+            points: 500,
+            progress: 100
         },
-        { 
+        {
             index: 1,
-            title: 'Early Bird', 
-            description: 'Attend 5 consecutive classes 10 minutes before the start time.', 
-            icon: Clock, 
-            color: Palette.sky, 
-            points: 150, 
-            progress: 80 
+            title: 'Early Bird',
+            description: 'Attend 5 consecutive classes 10 minutes before the start time.',
+            icon: Clock,
+            color: Palette.sky,
+            points: 150,
+            progress: 80
         },
-        { 
+        {
             index: 2,
-            title: 'Tech Savvy', 
-            description: 'Complete all digital workshop modules in the Student Portal.', 
-            icon: Zap, 
-            color: Palette.violet, 
-            points: 300, 
-            progress: 45 
+            title: 'Tech Savvy',
+            description: 'Complete all digital workshop modules in the Student Portal.',
+            icon: Zap,
+            color: Palette.violet,
+            points: 300,
+            progress: 45
         },
-        { 
+        {
             index: 3,
-            title: 'Social Butterfly', 
-            description: 'Participate in 3 or more campus organization events.', 
-            icon: Users, 
-            color: Palette.success, 
-            points: 200, 
-            progress: 100 
+            title: 'Social Butterfly',
+            description: 'Participate in 3 or more campus organization events.',
+            icon: Users,
+            color: Palette.success,
+            points: 200,
+            progress: 100
         },
-        { 
+        {
             index: 4,
-            title: 'Research Pro', 
-            description: 'Submit an approved research proposal to the department.', 
-            icon: BookOpen, 
-            color: Palette.brandBlue, 
-            points: 400, 
-            progress: 20 
+            title: 'Research Pro',
+            description: 'Submit an approved research proposal to the department.',
+            icon: BookOpen,
+            color: Palette.brandBlue,
+            points: 400,
+            progress: 20
         },
     ];
 
@@ -124,50 +120,52 @@ const Achievements = () => {
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+            
+            {/* Fixed Sticky Header Banner */}
+            <View style={[styles.bannerContainer, { zIndex: 100 }]}>
+                <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop' }}
+                    style={styles.bannerImage}
+                />
+                <BlurView intensity={30} tint="dark" style={styles.bannerOverlay}>
+                    <View style={styles.headerTop}>
+                        <TouchableOpacity onPress={goBack} style={styles.backButton}>
+                            <ChevronLeft size={24} color={Palette.white} />
+                        </TouchableOpacity>
+                        <Text style={styles.headerTitle}>Achievements</Text>
+                        <View style={{ width: 40 }} />
+                    </View>
 
-            <ScrollView 
-                showsVerticalScrollIndicator={false} 
+                    <View style={styles.statContainer}>
+                        {stats.map((stat, idx) => (
+                            <Animated.View
+                                entering={FadeInRight.delay(idx * 150)}
+                                key={idx}
+                                style={styles.statBox}
+                            >
+                                <View style={[styles.statIcon, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                                    <stat.icon size={18} color={Palette.white} />
+                                </View>
+                                <Text style={styles.statValue}>{stat.value}</Text>
+                                <Text style={styles.statLabel}>{stat.label}</Text>
+                            </Animated.View>
+                        ))}
+                    </View>
+                </BlurView>
+            </View>
+
+            <ScrollView
+                showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
-                {/* Header Banner */}
-                <View style={styles.bannerContainer}>
-                    <Image
-                        source={{ uri: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop' }}
-                        style={styles.bannerImage}
-                    />
-                    <BlurView intensity={20} tint="dark" style={styles.bannerOverlay}>
-                        <View style={styles.headerTop}>
-                            <TouchableOpacity onPress={goBack} style={styles.backButton}>
-                                <ChevronLeft size={24} color={Palette.white} />
-                            </TouchableOpacity>
-                            <Text style={styles.headerTitle}>Achievements</Text>
-                            <View style={{ width: 40 }} />
-                        </View>
 
-                        <View style={styles.statContainer}>
-                            {stats.map((stat, idx) => (
-                                <Animated.View 
-                                    entering={FadeInRight.delay(idx * 150)}
-                                    key={idx} 
-                                    style={styles.statBox}
-                                >
-                                    <View style={[styles.statIcon, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                                        <stat.icon size={18} color={Palette.white} />
-                                    </View>
-                                    <Text style={styles.statValue}>{stat.value}</Text>
-                                    <Text style={styles.statLabel}>{stat.label}</Text>
-                                </Animated.View>
-                            ))}
-                        </View>
-                    </BlurView>
-                </View>
 
                 {/* Achievements List */}
                 <View style={styles.mainContent}>
                     <View style={styles.sectionHeader}>
-                        <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>My Collection</Text>
+                        <Text style={[styles.sectionTitle, { color: Palette.white }]}>My Collection</Text>
                         <TouchableOpacity>
-                            <Text style={{ color: Palette.primary, fontWeight: '600' }}>Filter</Text>
+                            <Text style={{ color: Palette.white, fontWeight: '600', opacity: 0.9 }}>Filter</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -196,10 +194,9 @@ const darkTheme = {
     border: Palette.gray800,
 };
 
-// Re-using Clock icon from Lucide since I only imported trophies etc.
 const Clock = (props: any) => (
     <View {...props}>
-        <Zap {...props} /> 
+        <Zap {...props} />
     </View>
 );
 
@@ -208,9 +205,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
+        paddingTop: 310, // Enough space to clear the banner fully
         paddingBottom: 40,
     },
     bannerContainer: {
+        position: 'absolute',
+        top: 0,
         height: 280,
         width: '100%',
         backgroundColor: Palette.primary,
