@@ -39,10 +39,10 @@ const NavButtons = () => {
                 onPress={() => setScreen(item.target as any)}
             >
                 <View style={[
-                    styles.iconWrapper, 
+                    styles.iconWrapper,
                     { backgroundColor: isActive ? Palette.primary + '20' : 'transparent' }
                 ]}>
-                    <item.icon size={22} color={displayColor} strokeWidth={isActive ? 2.5 : 2} />
+                    <item.icon size={20} color={displayColor} strokeWidth={isActive ? 2.5 : 2} />
                 </View>
                 <Text style={[styles.navText, { color: displayColor, fontWeight: isActive ? '700' : '500' }]}>
                     {item.name}
@@ -55,7 +55,6 @@ const NavButtons = () => {
 
     return (
         <View style={styles.container} pointerEvents="box-none">
-            {/* Elevated Scan Button - GCash style */}
             <TouchableOpacity
                 style={[styles.scanButton, isScanActive && styles.scanButtonActive]}
                 activeOpacity={0.85}
@@ -90,7 +89,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         width: width * 0.9,
-        paddingVertical: 14, // Slightly increased to deepen the bar
+        paddingVertical: 14,
         borderRadius: 35,
         overflow: 'hidden',
         borderWidth: 1.5,
@@ -104,7 +103,7 @@ const styles = StyleSheet.create({
             },
             android: {
                 elevation: 10,
-                backgroundColor: 'rgba(255, 255, 255, 0.45)', // Slightly more opaque for better contrast
+                backgroundColor: 'rgba(255, 255, 255, 0.45)', 
             },
         }),
     },
@@ -114,22 +113,22 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     iconWrapper: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 2,
     },
     navText: {
-        fontSize: 10,
+        fontSize: 9,
         fontWeight: '600',
         letterSpacing: 0.5,
     },
     scanButton: {
         position: 'absolute',
-        top: -42, // Lifted further up for a "pop" effect
-        width: 60, // Slightly more refined size
+        top: -42,
+        width: 60,
         height: 60,
         borderRadius: 30,
         backgroundColor: Palette.primary,
@@ -137,18 +136,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         zIndex: 1000,
         borderWidth: 4,
-        borderColor: 'rgba(255, 255, 255, 0.98)',
-        ...Platform.select({
-            ios: {
-                shadowColor: Palette.primary,
-                shadowOffset: { width: 0, height: 10 },
-                shadowOpacity: 0.45,
-                shadowRadius: 15,
-            },
-            android: {
-                elevation: 16,
-            },
-        }),
+        borderColor: Palette.primary,
     },
     scanButtonActive: {
         backgroundColor: Palette.primaryDark ?? Palette.primary,
