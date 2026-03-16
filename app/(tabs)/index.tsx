@@ -56,6 +56,8 @@ export default function AppContainer() {
     }
   };
   const swipeBackGesture = Gesture.Pan()
+    .activeOffsetX(20) // Require 20px horizontal movement to activate
+    .failOffsetY([-20, 20]) // Fail if there's significant vertical movement
     .onUpdate((event) => {
       if (event.translationX > 50 && event.velocityX > 500 && history.length > 0) {
         runOnJS(goBack)();

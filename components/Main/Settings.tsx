@@ -86,7 +86,11 @@ const Settings = () => {
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <ScrollView 
+                showsVerticalScrollIndicator={false} 
+                style={{ flex: 1 }}
+                contentContainerStyle={styles.scrollContent}
+            >
 
                 {/* Compact Edge-to-Edge Trendy Banner Section (Matching Home.tsx) */}
                 <View style={styles.bannerContainer}>

@@ -128,14 +128,14 @@ const Home = () => {
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
             {/* Compact Edge-to-Edge Trendy Banner Section (Sticky/Fixed) */}
-            <View style={styles.bannerContainer}>
+            <View style={styles.bannerContainer} pointerEvents="box-none">
                 <Image
                     source={{ uri: 'https://images.unsplash.com/photo-1510070112810-d4e9a46d9e91?q=80&w=2069&auto=format&fit=crop' }}
                     style={styles.bannerImage}
                 />
 
                 {/* Unified Horizontal Content Overlay */}
-                <View style={[styles.bannerContent, { backgroundColor: Palette.primary + 'B3' }]}>
+                <View style={[styles.bannerContent, { backgroundColor: Palette.primary + 'B3' }]} pointerEvents="box-none">
                     <View style={styles.profileSection}>
                         <Image
                             source={{ uri: 'https://i.pravatar.cc/150?u=student123' }}
@@ -162,7 +162,11 @@ const Home = () => {
                 </View>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <ScrollView 
+                showsVerticalScrollIndicator={false} 
+                style={{ flex: 1 }}
+                contentContainerStyle={styles.scrollContent}
+            >
 
                 {/* Main Content with Padding */}
                 <View style={styles.mainPadding}>

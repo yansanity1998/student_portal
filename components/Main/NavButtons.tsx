@@ -26,7 +26,7 @@ const NavButtons = () => {
     ];
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container} pointerEvents="box-none">
             <BlurView
                 intensity={Platform.OS === 'ios' ? 40 : 120}
                 tint="extraLight"
