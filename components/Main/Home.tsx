@@ -32,6 +32,7 @@ import {
     View,
 } from 'react-native';
 import Animated, { SlideInRight, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Palette } from '../color/color';
 import NavButtons from './NavButtons';
 import News from './News';
@@ -192,7 +193,7 @@ const Home = () => {
 
                     {/* News Carousel Section (Now upper, since stats removed) */}
                     <News theme={theme} />
-
+{/* 
                     <TouchableOpacity
                         style={[styles.parentToggle, { backgroundColor: isParentMode ? Palette.primary : theme.cardBg }]}
                         onPress={() => setIsParentMode(!isParentMode)}
@@ -208,26 +209,52 @@ const Home = () => {
                             size={18}
                             color={isParentMode ? Palette.white : theme.textSecondary}
                         />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
-                    {/* Gamified Progress Tracker */}
-                    <View style={[styles.section, styles.progressSection, { backgroundColor: theme.cardBg }]}>
-                        <View style={styles.sectionHeader}>
-                            <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Learning Journey</Text>
-                            <TouchableOpacity>
-                                <Text style={{ color: Palette.primary }}>All Badges</Text>
+                    {/* Modern Gamified Learning Journey Tracker */}
+                    <View style={[styles.learningCard, { backgroundColor: theme.cardBg }]}>
+                        <View style={styles.learningHeader}>
+                            <View>
+                                <Text style={[styles.levelLabel, { color: Palette.primary }]}>LEVEL 12</Text>
+                                <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Learning Journey</Text>
+                            </View>
+                            <TouchableOpacity style={styles.allBadgesBtn}>
+                                <Text style={styles.allBadgesText}>View All</Text>
+                                <ChevronRight size={14} color={Palette.primary} />
                             </TouchableOpacity>
                         </View>
-                        <View style={styles.progressBarBg}>
-                            <View style={[styles.progressBarFill, { width: '75%', backgroundColor: Palette.primary }]} />
+
+                        <View style={styles.progressContainer}>
+                            <View style={styles.progressInfoRow}>
+                                <Text style={[styles.xpText, { color: theme.textPrimary }]}>
+                                    750 <Text style={{ color: theme.textSecondary, fontWeight: '500' }}>/ 1000 XP</Text>
+                                </Text>
+                                <Text style={[styles.milestoneText, { color: Palette.success }]}>75% to Level 13</Text>
+                            </View>
+                            <View style={[styles.progressBarBg, { backgroundColor: isDarkMode ? '#222' : '#F0F0F0' }]}>
+                                <LinearGradient
+                                    colors={[Palette.primary, Palette.sky]}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={[styles.progressBarFill, { width: '75%' }]}
+                                />
+                            </View>
                         </View>
+
                         <View style={styles.badgeRow}>
-                            {[Trophy, Star, Medal].map((Icon, idx) => (
-                                <View key={idx} style={[styles.badgeContainer, { opacity: 1 }]}>
-                                    <Icon size={24} color={Palette.warning} />
+                            {[
+                                { Icon: Trophy, color: Palette.warning, bg: Palette.warning + '15' },
+                                { Icon: Star, color: Palette.success, bg: Palette.success + '15' },
+                                { Icon: Medal, color: Palette.brandBlue, bg: Palette.brandBlue + '15' },
+                            ].map((badge, idx) => (
+                                <View key={idx} style={[styles.badgePill, { backgroundColor: badge.bg }]}>
+                                    <badge.Icon size={16} color={badge.color} strokeWidth={2.5} />
                                 </View>
                             ))}
-                            <Text style={[styles.progressText, { color: theme.textSecondary }]}>750 / 1000 XP</Text>
+                            <View style={styles.nextMilestone}>
+                                <Clock size={12} color={theme.textSecondary} />
+                                <Text style={[styles.nextText, { color: theme.textSecondary }]}>Next: 250 XP</Text>
+                            </View>
                         </View>
                     </View>
 
@@ -430,9 +457,16 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 20,
     },
-    progressSection: {
+    labelMargin: {
+        marginTop: 30,
+        marginBottom: 15,
+    },
+    learningCard: {
+        marginTop: 25,
+        padding: 20,
+        borderRadius: 24,
         ...Platform.select({
-            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8 },
+            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.05, shadowRadius: 12 },
             android: { elevation: 4 },
         }),
     },
@@ -447,31 +481,83 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '700',
     },
+    learningHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 20,
+    },
+    levelLabel: {
+        fontSize: 10,
+        fontWeight: '900',
+        letterSpacing: 1.5,
+        marginBottom: 4,
+    },
+    allBadgesBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 12,
+        backgroundColor: Palette.primary + '10',
+    },
+    allBadgesText: {
+        color: Palette.primary,
+        fontSize: 12,
+        fontWeight: '700',
+        marginRight: 4,
+    },
+    progressContainer: {
+        marginBottom: 20,
+    },
+    progressInfoRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        marginBottom: 10,
+    },
+    xpText: {
+        fontSize: 18,
+        fontWeight: '800',
+    },
+    milestoneText: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
     progressBarBg: {
-        height: 8,
-        backgroundColor: Palette.gray200,
-        borderRadius: 4,
-        marginBottom: 15,
+        height: 10,
+        borderRadius: 5,
+        overflow: 'hidden',
     },
     progressBarFill: {
-        height: 8,
-        borderRadius: 4,
+        height: '100%',
+        borderRadius: 5,
     },
     badgeRow: {
         flexDirection: 'row',
         alignItems: 'center',
     },
-    badgeContainer: {
-        marginRight: 15,
+    badgePill: {
+        width: 36,
+        height: 36,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
     },
-    progressText: {
+    nextMilestone: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginLeft: 'auto',
-        fontSize: 12,
-        fontWeight: '600',
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        backgroundColor: 'rgba(0,0,0,0.03)',
     },
-    labelMargin: {
-        marginTop: 30,
-        marginBottom: 15,
+    nextText: {
+        fontSize: 10,
+        fontWeight: '700',
+        marginLeft: 4,
     },
     grid: {
         flexDirection: 'row',
