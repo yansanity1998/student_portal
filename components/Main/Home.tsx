@@ -218,7 +218,10 @@ const Home = () => {
                                 <Text style={[styles.levelLabel, { color: Palette.primary }]}>LEVEL 12</Text>
                                 <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Learning Journey</Text>
                             </View>
-                            <TouchableOpacity style={styles.allBadgesBtn}>
+                            <TouchableOpacity 
+                                style={styles.allBadgesBtn}
+                                onPress={() => setScreen('Achievements')}
+                            >
                                 <Text style={styles.allBadgesText}>View All</Text>
                                 <ChevronRight size={14} color={Palette.primary} />
                             </TouchableOpacity>
