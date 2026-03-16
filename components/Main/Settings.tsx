@@ -27,7 +27,6 @@ import {
     View,
 } from 'react-native';
 import { Palette } from '../color/color';
-import NavButtons from './NavButtons';
 
 const Settings = () => {
     const { setScreen, showBreakingNews, setShowBreakingNews } = useNavigation();
@@ -83,47 +82,44 @@ const Settings = () => {
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
-            <ScrollView 
-                showsVerticalScrollIndicator={false} 
+            {/* Fixed Sticky Header Banner — sits above the ScrollView */}
+            <View style={[styles.bannerContainer, { zIndex: 100 }]}>
+                <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1510070112810-d4e9a46d9e91?q=80&w=2069&auto=format&fit=crop' }}
+                    style={styles.bannerImage}
+                />
+                <View style={[styles.bannerContent, { backgroundColor: Palette.primary + 'B3' }]}>
+                    <View style={styles.profileSection}>
+                        <Image
+                            source={{ uri: 'https://i.pravatar.cc/150?u=student123' }}
+                            style={styles.profilePic}
+                        />
+                        <View style={styles.welcomeTextContainer}>
+                            <Text style={[styles.studentName, { color: Palette.white }]}>Jesper Ian Barila</Text>
+                            <Text style={[styles.greeting, { color: 'rgba(255,255,255,0.9)' }]}>Account Settings</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.headerRightActions}>
+                        <TouchableOpacity
+                            style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
+                            onPress={() => setIsDarkMode(!isDarkMode)}
+                        >
+                            {isDarkMode ? <Sun size={20} color={Palette.white} /> : <Moon size={20} color={Palette.white} />}
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                            <Bell size={20} color={Palette.white} />
+                            <View style={styles.notificationDot} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+
+            <ScrollView
+                showsVerticalScrollIndicator={false}
                 style={{ flex: 1 }}
                 contentContainerStyle={styles.scrollContent}
             >
-
-                {/* Compact Edge-to-Edge Trendy Banner Section (Matching Home.tsx) */}
-                <View style={styles.bannerContainer}>
-                    <Image
-                        source={{ uri: 'https://images.unsplash.com/photo-1510070112810-d4e9a46d9e91?q=80&w=2069&auto=format&fit=crop' }}
-                        style={styles.bannerImage}
-                    />
-
-                    {/* Unified Horizontal Content Overlay */}
-                    <View style={[styles.bannerContent, { backgroundColor: Palette.primary + 'B3' }]}>
-                        <View style={styles.profileSection}>
-                            <Image
-                                source={{ uri: 'https://i.pravatar.cc/150?u=student123' }}
-                                style={styles.profilePic}
-                            />
-                            <View style={styles.welcomeTextContainer}>
-                                <Text style={[styles.studentName, { color: Palette.white }]}>Jesper Ian Barila</Text>
-                                <Text style={[styles.greeting, { color: 'rgba(255,255,255,0.9)' }]}>Account Settings</Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.headerRightActions}>
-                            <TouchableOpacity
-                                style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
-                                onPress={() => setIsDarkMode(!isDarkMode)}
-                            >
-                                {isDarkMode ? <Sun size={20} color={Palette.white} /> : <Moon size={20} color={Palette.white} />}
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                                <Bell size={20} color={Palette.white} />
-                                <View style={styles.notificationDot} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-
                 {/* Main Content with Padding */}
                 <View style={styles.mainPadding}>
                     {/* Account Section */}
@@ -199,11 +195,7 @@ const Settings = () => {
 
                     <Text style={[styles.footerText, { color: Palette.gray400 }]}>Version 1.0.24 (Beta)</Text>
                 </View>
-
             </ScrollView>
-
-            <NavButtons />
-
         </View>
     );
 };
@@ -230,6 +222,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
+        paddingTop: 195, // Push content below the fixed header (bannerHeight 180 + margin)
         paddingBottom: 120,
     },
     mainPadding: {
@@ -242,7 +235,12 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,
         overflow: 'hidden',
-        marginBottom: 10,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        elevation: 10,
     },
     bannerImage: {
         width: '100%',
