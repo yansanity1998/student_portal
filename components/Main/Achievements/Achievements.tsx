@@ -120,7 +120,7 @@ const Achievements = () => {
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-            
+
             {/* Fixed Sticky Header Banner */}
             <View style={[styles.bannerContainer, { zIndex: 100 }]}>
                 <Image
@@ -151,6 +151,7 @@ const Achievements = () => {
                             </Animated.View>
                         ))}
                     </View>
+                    
                 </BlurView>
             </View>
 
@@ -162,12 +163,6 @@ const Achievements = () => {
 
                 {/* Achievements List */}
                 <View style={styles.mainContent}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={[styles.sectionTitle, { color: Palette.white }]}>My Collection</Text>
-                        <TouchableOpacity>
-                            <Text style={{ color: Palette.white, fontWeight: '600', opacity: 0.9 }}>Filter</Text>
-                        </TouchableOpacity>
-                    </View>
 
                     {achievements.map((item) => (
                         <AchievementCard key={item.index} item={item} theme={theme} />
@@ -205,13 +200,13 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingTop: 310, // Enough space to clear the banner fully
+        paddingTop: 280,
         paddingBottom: 40,
     },
     bannerContainer: {
         position: 'absolute',
         top: 0,
-        height: 280,
+        height: 250,
         width: '100%',
         backgroundColor: Palette.primary,
         borderBottomLeftRadius: 40,
@@ -278,7 +273,7 @@ const styles = StyleSheet.create({
     },
     mainContent: {
         paddingHorizontal: 20,
-        marginTop: -30,
+        marginTop: 0,
         zIndex: 5,
     },
     sectionHeader: {
