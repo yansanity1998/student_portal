@@ -66,7 +66,7 @@ const QuickActionCard = ({ action, theme, onPress }: any) => {
             onPress={onPress}
             style={({ hovered, pressed }) => [
                 styles.gridItem,
-                { backgroundColor: theme.cardBg },
+                { backgroundColor: theme.cardBg, overflow: 'hidden' },
                 hovered && {
                     backgroundColor: theme.cardBg,
                     transform: [{ translateY: -2 }],
@@ -78,6 +78,9 @@ const QuickActionCard = ({ action, theme, onPress }: any) => {
                 pressed && { opacity: 0.8 }
             ]}
         >
+            <View style={styles.watermarkContainer}>
+                <action.icon size={80} color={action.color} opacity={0.18} strokeWidth={1.5} />
+            </View>
             <Animated.View style={[styles.gridItemContent, animatedStyle]}>
                 <View style={[styles.gridIcon, { backgroundColor: action.color + '15' }]}>
                     <action.icon size={24} color={action.color} strokeWidth={2.5} />
@@ -471,6 +474,12 @@ const styles = StyleSheet.create({
             android: { elevation: 3 },
             web: { transition: 'all 0.3s ease' }
         }),
+    },
+    watermarkContainer: {
+        position: 'absolute',
+        right: -15,
+        bottom: -20,
+        transform: [{ rotate: '-15deg' }],
     },
     gridItemContent: {
         padding: 12, // Reduced padding for 3-column layout

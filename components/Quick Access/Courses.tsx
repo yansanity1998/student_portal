@@ -89,6 +89,9 @@ const Courses = () => {
                 onPress={() => {}} // Could lead to course details
             >
                 <Image source={{ uri: item.image }} style={styles.courseImage} />
+                <View style={styles.watermarkContainer}>
+                    <BookOpen size={100} color={Palette.white} opacity={0.25} />
+                </View>
                 <View style={styles.courseOverlay}>
                     <View style={styles.badgeContainer}>
                         <View style={[styles.unitBadge, { backgroundColor: item.color }]}>
@@ -290,6 +293,14 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,
         shadowRadius: 10,
+        position: 'relative',
+    },
+    watermarkContainer: {
+        position: 'absolute',
+        right: -10,
+        bottom: -15,
+        transform: [{ rotate: '-10deg' }],
+        zIndex: 5,
     },
     courseImage: {
         width: '100%',

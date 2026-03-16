@@ -163,6 +163,9 @@ const Schedule = () => {
             
             {/* Modern Header */}
             <View style={styles.header}>
+                <View style={styles.watermarkContainer}>
+                    <Calendar size={120} color={Palette.primary} opacity={0.1} />
+                </View>
                 <TouchableOpacity onPress={() => setScreen('Home')} style={styles.iconBtn}>
                     <ArrowLeft size={24} color={Palette.gray900} />
                 </TouchableOpacity>
@@ -229,6 +232,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: Platform.OS === 'android' ? 40 : 10,
         paddingBottom: 20,
+        overflow: 'hidden',
+    },
+    watermarkContainer: {
+        position: 'absolute',
+        right: -30,
+        top: -20,
+        transform: [{ rotate: '15deg' }],
     },
     iconBtn: {
         width: 45,

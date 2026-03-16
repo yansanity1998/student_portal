@@ -130,6 +130,9 @@ const Tasks = () => {
 
             {/* Header */}
             <View style={styles.header}>
+                <View style={styles.watermarkContainer}>
+                    <ListTodo size={120} color={Palette.primary} opacity={0.1} />
+                </View>
                 <TouchableOpacity onPress={() => setScreen('Home')} style={styles.iconBtn}>
                     <ArrowLeft size={24} color={Palette.gray900} />
                 </TouchableOpacity>
@@ -193,6 +196,13 @@ const styles = StyleSheet.create({
         paddingTop: Platform.OS === 'android' ? 40 : 10,
         paddingBottom: 20,
         backgroundColor: '#FFFFFF',
+        overflow: 'hidden',
+    },
+    watermarkContainer: {
+        position: 'absolute',
+        right: -30,
+        top: -10,
+        transform: [{ rotate: '15deg' }],
     },
     iconBtn: {
         width: 45,

@@ -117,6 +117,9 @@ const Attendance = () => {
                 
                 {/* Attendance Score Card */}
                 <View style={styles.scoreCard}>
+                    <View style={styles.watermarkContainer}>
+                        <CheckCircle2 size={120} color={Palette.white} opacity={0.2} />
+                    </View>
                     <View style={styles.scoreInfo}>
                         <Text style={styles.scoreLabel}>Overall Attendance</Text>
                         <Text style={styles.scorePercentage}>94.5%</Text>
@@ -235,6 +238,13 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 10,
+        overflow: 'hidden',
+    },
+    watermarkContainer: {
+        position: 'absolute',
+        right: -20,
+        bottom: -30,
+        transform: [{ rotate: '-15deg' }],
     },
     scoreInfo: {
         flex: 1,
