@@ -1,17 +1,14 @@
 import { useNavigation } from '@/app/(tabs)/index';
-import { 
-    ArrowLeft, 
-    Calendar, 
-    CheckCircle2, 
-    Circle, 
-    Clock, 
-    Filter, 
-    ListTodo, 
-    MessageSquare, 
-    MoreVertical, 
-    Plus, 
-    Search, 
-    Tag 
+import {
+    ArrowLeft,
+    CheckCircle2,
+    Circle,
+    Clock,
+    ListTodo,
+    MoreVertical,
+    Plus,
+    Search,
+    Tag
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
@@ -26,7 +23,8 @@ import {
     View,
 } from 'react-native';
 import Animated, { FadeInLeft, Layout, SlideInRight, SlideOutRight } from 'react-native-reanimated';
-import { Palette } from '../color/color';
+import { Palette } from '../../color/color';
+import CreateTask from './CreateTask';
 
 const { width } = Dimensions.get('window');
 
@@ -77,12 +75,18 @@ const TASK_DATA = [
 const Tasks = () => {
     const { setScreen } = useNavigation();
     const [filter, setFilter] = useState('All');
+    const [tasks, setTasks] = useState(TASK_DATA);
+    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+
+    const handleCreateTask = (newTask: any) => {
+        setTasks(prev => [newTask, ...prev]);
+    };
 
     const renderTaskItem = ({ item, index }: any) => {
         const isDone = item.status === 'Done';
 
         return (
-            <Animated.View 
+            <Animated.View
                 entering={FadeInLeft.delay(index * 100)}
                 layout={Layout.springify()}
                 style={[styles.taskCard, isDone && styles.taskCardDone]}
@@ -125,60 +129,70 @@ const Tasks = () => {
 
     return (
         <Animated.View entering={SlideInRight.duration(180)} exiting={SlideOutRight.duration(180)} style={{ flex: 1 }}>
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" />
+            <SafeAreaView style={styles.container}>
+                <StatusBar barStyle="dark-content" />
 
-            {/* Header */}
-            <View style={styles.header}>
-                <View style={styles.watermarkContainer}>
-                    <ListTodo size={120} color={Palette.primary} opacity={0.1} />
-                </View>
-                <TouchableOpacity onPress={() => setScreen('Home')} style={styles.iconBtn}>
-                    <ArrowLeft size={24} color={Palette.gray900} />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Academic Tasks</Text>
-                <TouchableOpacity style={styles.iconBtn}>
-                    <Search size={22} color={Palette.gray900} />
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.content}>
-                {/* Status Tabs */}
-                <View style={styles.tabContainer}>
-                    {['All', 'To Do', 'In Progress', 'Done'].map((tab) => (
-                        <TouchableOpacity 
-                            key={tab} 
-                            style={[styles.tab, filter === tab && styles.tabActive]}
-                            onPress={() => setFilter(tab)}
-                        >
-                            <Text style={[styles.tabText, filter === tab && styles.tabTextActive]}>
-                                {tab}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
+                {/* Header */}
+                <View style={styles.header}>
+                    <View style={styles.watermarkContainer}>
+                        <ListTodo size={120} color={Palette.primary} opacity={0.1} />
+                    </View>
+                    <TouchableOpacity onPress={() => setScreen('Home')} style={styles.iconBtn}>
+                        <ArrowLeft size={24} color={Palette.gray900} />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Academic Tasks</Text>
+                    <TouchableOpacity style={styles.iconBtn}>
+                        <Search size={22} color={Palette.gray900} />
+                    </TouchableOpacity>
                 </View>
 
-                {/* Task List */}
-                <FlatList
-                    data={filter === 'All' ? TASK_DATA : TASK_DATA.filter(t => t.status === filter)}
-                    renderItem={renderTaskItem}
-                    keyExtractor={item => item.id}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.listPadding}
-                    ListEmptyComponent={() => (
-                        <View style={styles.emptyContainer}>
-                            <ListTodo size={60} color={Palette.gray200} strokeWidth={1} />
-                            <Text style={styles.emptyText}>All caught up! No tasks here.</Text>
-                        </View>
-                    )}
+                <View style={styles.content}>
+                    {/* Status Tabs */}
+                    <View style={styles.tabContainer}>
+                        {['All', 'To Do', 'In Progress', 'Done'].map((tab) => (
+                            <TouchableOpacity
+                                key={tab}
+                                style={[styles.tab, filter === tab && styles.tabActive]}
+                                onPress={() => setFilter(tab)}
+                            >
+                                <Text style={[styles.tabText, filter === tab && styles.tabTextActive]}>
+                                    {tab}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
+                    {/* Task List */}
+                    <FlatList
+                        data={filter === 'All' ? tasks : tasks.filter(t => t.status === filter)}
+                        renderItem={renderTaskItem}
+                        keyExtractor={item => item.id}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.listPadding}
+                        ListEmptyComponent={() => (
+                            <View style={styles.emptyContainer}>
+                                <ListTodo size={60} color={Palette.gray200} strokeWidth={1} />
+                                <Text style={styles.emptyText}>All caught up! No tasks here.</Text>
+                            </View>
+                        )}
+                    />
+                </View>
+
+                {/* Floating Action Button */}
+                <TouchableOpacity 
+                    style={styles.fab}
+                    onPress={() => setIsCreateModalVisible(true)}
+                >
+                    <Plus size={30} color={Palette.white} />
+                </TouchableOpacity>
+
+                {/* Create Task Modal */}
+                <CreateTask 
+                    isVisible={isCreateModalVisible}
+                    onClose={() => setIsCreateModalVisible(false)}
+                    onSave={handleCreateTask}
                 />
-            </View>
-
-            {/* Floating Action Button */}
-            <TouchableOpacity style={styles.fab}>
-                <Plus size={30} color={Palette.white} />
-            </TouchableOpacity>
-        </SafeAreaView>
+            </SafeAreaView>
         </Animated.View>
     );
 };

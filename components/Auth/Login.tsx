@@ -146,7 +146,7 @@ const Login = () => {
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>New to ICI Portal? </Text>
                     <TouchableOpacity
-                        onPress={() => { }}
+                        onPress={() => setScreen('Register' as any)}
                         activeOpacity={0.6}
                     >
                         <Text style={[styles.signUpText, { color: Palette.white }]}>Create Account</Text>
