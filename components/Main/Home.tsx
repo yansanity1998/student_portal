@@ -1,5 +1,6 @@
 import { useNavigation } from '@/app/(tabs)/index';
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
     Bell,
     BookOpen,
@@ -15,8 +16,7 @@ import {
     Moon,
     Star,
     Sun,
-    Trophy,
-    Users
+    Trophy
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
@@ -32,7 +32,6 @@ import {
     View,
 } from 'react-native';
 import Animated, { SlideInRight, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Palette } from '../color/color';
 import NavButtons from './NavButtons';
 import News from './News';
@@ -139,7 +138,7 @@ const Home = () => {
 
                 {/* Unified Horizontal Content Overlay */}
                 <View style={[styles.bannerContent, { backgroundColor: Palette.primary + 'B3' }]} pointerEvents="box-none">
-                    <Text style={[styles.systemTitle, { color: Palette.white }]} numberOfLines={1}>Welcome to ICI Student Portal</Text>
+                    <Text style={[styles.systemTitle, { color: Palette.white }]} numberOfLines={1}>Welcome to ICI Student Portal!</Text>
 
                     <View style={styles.headerMainRow}>
                         <View style={styles.profileRow}>
@@ -193,7 +192,7 @@ const Home = () => {
 
                     {/* News Carousel Section (Now upper, since stats removed) */}
                     <News theme={theme} />
-{/* 
+                    {/* 
                     <TouchableOpacity
                         style={[styles.parentToggle, { backgroundColor: isParentMode ? Palette.primary : theme.cardBg }]}
                         onPress={() => setIsParentMode(!isParentMode)}
@@ -218,7 +217,7 @@ const Home = () => {
                                 <Text style={[styles.levelLabel, { color: Palette.primary }]}>LEVEL 12</Text>
                                 <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Learning Journey</Text>
                             </View>
-                            <TouchableOpacity 
+                            <TouchableOpacity
                                 style={styles.allBadgesBtn}
                                 onPress={() => setScreen('Achievements')}
                             >

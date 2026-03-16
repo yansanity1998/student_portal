@@ -24,6 +24,7 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Palette } from '../../color/color';
+import NavButtons from '../NavButtons';
 
 const { width } = Dimensions.get('window');
 
@@ -125,6 +126,8 @@ const Billing = () => {
                     </Animated.View>
                 )}
             />
+            
+            <NavButtons />
         </View>
     );
 };

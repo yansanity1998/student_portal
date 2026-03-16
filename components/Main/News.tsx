@@ -12,9 +12,11 @@ import {
     View,
     TouchableOpacity,
     Alert,
+    Modal,
 } from 'react-native';
 import { Palette } from '../color/color';
 import { useNavigation } from '@/app/(tabs)/index';
+import { X } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 const CAROUSEL_WIDTH = width - 40;
@@ -63,6 +65,7 @@ const News = ({ theme }: any) => {
     const scrollX = useRef(new Animated.Value(0)).current;
     const flatListRef = useRef<FlatList>(null);
     const [currentIndex, setCurrentIndex] = React.useState(0);
+    const [selectedNews, setSelectedNews] = React.useState<any>(null);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -118,11 +121,7 @@ const News = ({ theme }: any) => {
         });
 
         const handlePress = () => {
-            Alert.alert(
-                item.title,
-                item.description + "\n\nFull article coming soon to ICI Portal.",
-                [{ text: "Close", style: "cancel" }]
-            );
+            setSelectedNews(item);
         };
 
         return (
@@ -239,6 +238,41 @@ const News = ({ theme }: any) => {
                     </View>
                 </TouchableOpacity>
             )}
+
+            {/* Full-Screen Image Modal */}
+            <Modal
+                visible={!!selectedNews}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setSelectedNews(null)}
+            >
+                <BlurView intensity={90} tint="dark" style={styles.modalContainer}>
+                    <TouchableOpacity 
+                        style={styles.modalCloseArea} 
+                        activeOpacity={1} 
+                        onPress={() => setSelectedNews(null)}
+                    >
+                        {selectedNews && (
+                            <View style={styles.modalContent}>
+                                <Image source={selectedNews.image} style={styles.modalImage} />
+                                
+                                <TouchableOpacity 
+                                    style={styles.closeButton} 
+                                    onPress={() => setSelectedNews(null)}
+                                >
+                                    <X size={20} color={Palette.white} />
+                                </TouchableOpacity>
+
+                                <View style={styles.modalTextContainer}>
+                                    <Text style={styles.modalTitle}>{selectedNews.title}</Text>
+                                    <Text style={styles.modalDescription}>{selectedNews.description}</Text>
+                                    <Text style={styles.modalDate}>{selectedNews.date}</Text>
+                                </View>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                </BlurView>
+            </Modal>
         </View>
     );
 };
@@ -392,7 +426,7 @@ const styles = StyleSheet.create({
     },
     marqueeInner: {
         flexDirection: 'row',
-        width: width * 10, // Massive width to prevent text truncation
+        width: width * 10, 
     },
     breakingTitle: {
         fontSize: 12,
@@ -406,6 +440,61 @@ const styles = StyleSheet.create({
         bottom: 0,
         width: 60,
         zIndex: 3,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalCloseArea: {
+        flex: 1,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 15,
+        right: 15,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 10,
+    },
+    modalContent: {
+        width: width * 0.9,
+        backgroundColor: Palette.white,
+        borderRadius: 24,
+        overflow: 'hidden',
+    },
+    modalImage: {
+        width: '100%',
+        height: 300,
+        resizeMode: 'cover',
+    },
+    modalTextContainer: {
+        padding: 24,
+        backgroundColor: Palette.white,
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: '800',
+        color: Palette.gray900,
+        marginBottom: 8,
+    },
+    modalDescription: {
+        fontSize: 14,
+        lineHeight: 22,
+        color: Palette.gray600,
+        marginBottom: 16,
+    },
+    modalDate: {
+        fontSize: 12,
+        color: Palette.gray400,
+        fontWeight: '700',
     },
 });
 
