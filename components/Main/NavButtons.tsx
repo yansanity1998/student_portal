@@ -10,7 +10,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Palette } from '../color/color';
 
 const { width } = Dimensions.get('window');
@@ -65,16 +65,20 @@ const NavItem = ({ item, currentScreen, setScreen }: any) => {
     
     // Animation specific to this item
     const translateY = useSharedValue(isActive ? -10 : 0);
+    const progress = useSharedValue(isActive ? 1 : 0);
 
     React.useEffect(() => {
-        translateY.value = withSpring(isActive ? -10 : 0, {
-            damping: 14,
-            stiffness: 260,
-        });
+        const config = { duration: 250, easing: Easing.out(Easing.cubic) };
+        translateY.value = withTiming(isActive ? -10 : 0, config);
+        progress.value = withTiming(isActive ? 1 : 0, config);
     }, [isActive]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ translateY: translateY.value }],
+    }));
+
+    const bgStyle = useAnimatedStyle(() => ({
+        opacity: progress.value,
     }));
 
     return (
@@ -84,6 +88,7 @@ const NavItem = ({ item, currentScreen, setScreen }: any) => {
             onPress={() => setScreen(item.target as any)}
         >
             <Animated.View style={[styles.contentWrapper, animatedStyle]}>
+                <Animated.View style={[styles.activeBackground, bgStyle]} />
                 <item.icon size={22} color={displayColor} strokeWidth={isActive ? 2.5 : 2} />
                 <Text style={[styles.navText, { color: displayColor, fontWeight: isActive ? '700' : '500' }]}>
                     {item.name}
@@ -99,16 +104,20 @@ const ActionItem = ({ item, currentScreen, setScreen }: any) => {
     
     // Animation specific to this item
     const translateY = useSharedValue(isActive ? -10 : 0);
+    const progress = useSharedValue(isActive ? 1 : 0);
 
     React.useEffect(() => {
-        translateY.value = withSpring(isActive ? -10 : 0, {
-            damping: 14,
-            stiffness: 260,
-        });
+        const config = { duration: 250, easing: Easing.out(Easing.cubic) };
+        translateY.value = withTiming(isActive ? -10 : 0, config);
+        progress.value = withTiming(isActive ? 1 : 0, config);
     }, [isActive]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ translateY: translateY.value }],
+    }));
+
+    const bgStyle = useAnimatedStyle(() => ({
+        opacity: progress.value,
     }));
 
     return (
@@ -118,6 +127,7 @@ const ActionItem = ({ item, currentScreen, setScreen }: any) => {
             onPress={() => setScreen(item.target as any)}
         >
             <Animated.View style={[styles.contentWrapper, animatedStyle]}>
+                <Animated.View style={[styles.activeBackground, bgStyle]} />
                 <item.icon size={22} color={displayColor} strokeWidth={isActive ? 2.5 : 2} />
                 <Text style={[styles.navText, { color: displayColor, fontWeight: isActive ? '700' : '500' }]}>
                     {item.name}
@@ -169,7 +179,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: 60,
-        paddingVertical: 6,
+        paddingVertical: 8,
+    },
+    activeBackground: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: Palette.primary + '18',
+        borderRadius: 16,
     },
 
     navText: {
