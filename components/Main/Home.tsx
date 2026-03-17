@@ -3,8 +3,8 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Bell,
-    BellRing,
     BookOpen,
+    CalendarClock,
     CalendarDays,
     CheckSquare,
     ChevronRight,
@@ -277,7 +277,7 @@ const Home = () => {
                         >
                             <View style={styles.upcomingAlertIconOuter}>
                                 <View style={[styles.upcomingAlertIconInner, { backgroundColor: Palette.white }]}>
-                                    <BellRing size={22} color={Palette.primary} strokeWidth={2.5} />
+                                    <CalendarClock size={22} color={Palette.primary} strokeWidth={2.5} />
                                     <View style={styles.pulseDot} />
                                 </View>
                             </View>
