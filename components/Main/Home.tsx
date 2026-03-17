@@ -264,13 +264,13 @@ const Home = () => {
                     </View>
 
                     {/* Upcoming Schedule Modern Alert */}
-                    <TouchableOpacity 
-                        activeOpacity={0.8} 
+                    <TouchableOpacity
+                        activeOpacity={0.8}
                         style={styles.upcomingAlertWrapper}
                         onPress={() => setScreen('Location' as any)}
                     >
                         <LinearGradient
-                            colors={[Platform.select({ios: Palette.primary + '1A', android: Palette.primary + '25'}) as string, Platform.select({ios: Palette.sky + '08', android: Palette.sky + '12'}) as string]}
+                            colors={[Platform.select({ ios: Palette.primary + '1A', android: Palette.primary + '25' }) as string, Platform.select({ ios: Palette.sky + '08', android: Palette.sky + '12' }) as string]}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 1 }}
                             style={[styles.upcomingAlertContainer, { borderColor: Palette.primary + '30' }]}
@@ -281,7 +281,7 @@ const Home = () => {
                                     <View style={styles.pulseDot} />
                                 </View>
                             </View>
-                            
+
                             <View style={styles.upcomingAlertContent}>
                                 <Text style={[styles.upcomingAlertHeader, { color: Palette.primaryDark }]}>
                                     UPCOMING IN 15 MINS
@@ -294,7 +294,7 @@ const Home = () => {
                                     <Text style={[styles.upcomingAlertDesc, { color: theme.textSecondary }]}>Hall A</Text>
                                 </View>
                             </View>
-                            
+
                             <View style={[styles.upcomingAlertAction, { backgroundColor: Palette.white }]}>
                                 <ChevronRight size={18} color={Palette.primary} strokeWidth={3} />
                             </View>
