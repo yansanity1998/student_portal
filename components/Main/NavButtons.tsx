@@ -20,26 +20,24 @@ import { Palette } from '../color/color';
 const NavItem = ({ item, currentScreen, setScreen }: any) => {
     const isActive = currentScreen === item.target;
 
-    const indicatorScale = useSharedValue(isActive ? 1 : 0);
-    const iconScale = useSharedValue(isActive ? 1.1 : 1);
+    const translateY = useSharedValue(isActive ? -6 : 0);
+    const iconScale = useSharedValue(isActive ? 1.15 : 1);
+    const labelOpacity = useSharedValue(isActive ? 1 : 0.55);
 
     React.useEffect(() => {
-        const cfg = { duration: 220, easing: Easing.out(Easing.cubic) };
-        indicatorScale.value = withTiming(isActive ? 1 : 0, cfg);
-        iconScale.value = withTiming(isActive ? 1.1 : 1, cfg);
+        const cfg = { duration: 250, easing: Easing.out(Easing.back(1.5)) };
+        translateY.value = withTiming(isActive ? -6 : 0, cfg);
+        iconScale.value = withTiming(isActive ? 1.15 : 1, { duration: 250, easing: Easing.out(Easing.cubic) });
+        labelOpacity.value = withTiming(isActive ? 1 : 0.55, { duration: 200 });
     }, [isActive]);
 
-    const indicatorStyle = useAnimatedStyle(() => ({
-        transform: [{ scaleX: indicatorScale.value }],
-        opacity: indicatorScale.value,
-    }));
-
     const iconAnimStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: iconScale.value }],
+        transform: [
+            { translateY: translateY.value },
+            { scale: iconScale.value },
+        ],
     }));
 
-    // On teal bg: active = white, inactive = white at 55% opacity
-    const iconColor = 'rgba(255,255,255,1)';
     const iconOpacity = isActive ? 1 : 0.55;
 
     return (
@@ -48,10 +46,7 @@ const NavItem = ({ item, currentScreen, setScreen }: any) => {
             onPress={() => setScreen(item.target as any)}
             activeOpacity={0.7}
         >
-            {/* Active top-line indicator (white) */}
-            <Animated.View style={[styles.indicator, indicatorStyle]} />
-
-            {/* Icon with subtle active background pill */}
+            {/* Icon animates UP when active */}
             <Animated.View
                 style={[
                     styles.iconWrapper,
@@ -62,7 +57,7 @@ const NavItem = ({ item, currentScreen, setScreen }: any) => {
             >
                 <item.icon
                     size={22}
-                    color={iconColor}
+                    color='rgba(255,255,255,1)'
                     strokeWidth={isActive ? 2.5 : 2}
                 />
             </Animated.View>
@@ -88,10 +83,10 @@ const NavButtons = () => {
     const { currentScreen, setScreen } = useNavigation();
 
     const navItems = [
-        { name: 'Home',     icon: Home,        target: 'Home' },
-        { name: 'Billing',  icon: ReceiptText,  target: 'Billing' },
-        { name: 'Scan',     icon: ScanLine,     target: 'Scan' },
-        { name: 'Settings', icon: Settings,     target: 'Settings' },
+        { name: 'Home', icon: Home, target: 'Home' },
+        { name: 'Billing', icon: ReceiptText, target: 'Billing' },
+        { name: 'Scan', icon: ScanLine, target: 'Scan' },
+        { name: 'Settings', icon: Settings, target: 'Settings' },
     ];
 
     return (
@@ -138,14 +133,6 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         paddingTop: 10,
         paddingBottom: 4,
-    },
-    indicator: {
-        position: 'absolute',
-        top: 0,
-        width: 28,
-        height: 3,
-        borderRadius: 2,
-        backgroundColor: 'rgba(255,255,255,0.9)',
     },
     iconWrapper: {
         width: 44,
