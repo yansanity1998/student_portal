@@ -3,6 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Bell,
+    BellRing,
     BookOpen,
     CalendarDays,
     CheckSquare,
@@ -259,6 +260,39 @@ const Home = () => {
                         </View>
                     </View>
 
+                    {/* Upcoming Schedule Modern Alert */}
+                    <TouchableOpacity activeOpacity={0.8} style={styles.upcomingAlertWrapper}>
+                        <LinearGradient
+                            colors={[Platform.select({ios: Palette.primary + '1A', android: Palette.primary + '25'}) as string, Platform.select({ios: Palette.sky + '08', android: Palette.sky + '12'}) as string]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={[styles.upcomingAlertContainer, { borderColor: Palette.primary + '30' }]}
+                        >
+                            <View style={styles.upcomingAlertIconOuter}>
+                                <View style={[styles.upcomingAlertIconInner, { backgroundColor: Palette.white }]}>
+                                    <BellRing size={22} color={Palette.primary} strokeWidth={2.5} />
+                                    <View style={styles.pulseDot} />
+                                </View>
+                            </View>
+                            
+                            <View style={styles.upcomingAlertContent}>
+                                <Text style={[styles.upcomingAlertHeader, { color: Palette.primaryDark }]}>
+                                    UPCOMING IN 15 MINS
+                                </Text>
+                                <Text style={[styles.upcomingAlertTitle, { color: theme.textPrimary }]} numberOfLines={1}>
+                                    Physics of Motion
+                                </Text>
+                                <View style={styles.upcomingAlertRow}>
+                                    <MapPin size={12} color={theme.textSecondary} />
+                                    <Text style={[styles.upcomingAlertDesc, { color: theme.textSecondary }]}>Hall A</Text>
+                                </View>
+                            </View>
+                            
+                            <View style={[styles.upcomingAlertAction, { backgroundColor: Palette.white }]}>
+                                <ChevronRight size={18} color={Palette.primary} strokeWidth={3} />
+                            </View>
+                        </LinearGradient>
+                    </TouchableOpacity>
 
                     {/* Timetable Section */}
                     <View style={styles.sectionHeader}>
@@ -641,6 +675,82 @@ const styles = StyleSheet.create({
         color: Palette.white,
         fontSize: 10,
         fontWeight: '800',
+    },
+    upcomingAlertWrapper: {
+        marginTop: 25,
+        ...Platform.select({
+            ios: { shadowColor: Palette.primary, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.15, shadowRadius: 12 },
+            android: { elevation: 3, shadowColor: Palette.primary },
+        }),
+    },
+    upcomingAlertContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderRadius: 22,
+        borderWidth: 1,
+    },
+    upcomingAlertIconOuter: {
+        marginRight: 14,
+    },
+    upcomingAlertIconInner: {
+        width: 46,
+        height: 46,
+        borderRadius: 23,
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...Platform.select({
+            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.1, shadowRadius: 6 },
+            android: { elevation: 2 },
+        }),
+    },
+    pulseDot: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: Palette.error,
+        borderWidth: 2,
+        borderColor: Palette.white,
+    },
+    upcomingAlertContent: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    upcomingAlertHeader: {
+        fontSize: 10,
+        fontWeight: '900',
+        letterSpacing: 0.8,
+        marginBottom: 4,
+    },
+    upcomingAlertTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        letterSpacing: -0.3,
+        marginBottom: 2,
+    },
+    upcomingAlertRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    upcomingAlertDesc: {
+        fontSize: 13,
+        marginLeft: 4,
+        fontWeight: '500',
+    },
+    upcomingAlertAction: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 10,
+        ...Platform.select({
+            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4 },
+            android: { elevation: 1 },
+        }),
     },
 });
 
