@@ -1,5 +1,6 @@
 import { useNavigation } from '@/app/(tabs)/index';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Home, ReceiptText, Scan, Settings } from 'lucide-react-native';
 import React, { useRef } from 'react';
 import {
@@ -98,11 +99,18 @@ const NavButtons = () => {
     return (
         <View style={styles.container} pointerEvents="box-none">
             <TouchableOpacity
-                style={[styles.scanButton, isScanActive && styles.scanButtonActive]}
+                style={[styles.scanButtonContainer, isScanActive && styles.scanButtonActive]}
                 activeOpacity={0.85}
                 onPress={() => setScreen('Scan')}
             >
-                <Scan size={26} color={Palette.white} strokeWidth={2.5} />
+                <LinearGradient
+                    colors={[Palette.primaryLight, Palette.primary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.scanButtonGradient}
+                >
+                    <Scan size={26} color={Palette.white} strokeWidth={2.5} />
+                </LinearGradient>
             </TouchableOpacity>
 
             <BlurView
@@ -230,22 +238,37 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         letterSpacing: 0.5,
     },
-    scanButton: {
+    scanButtonContainer: {
         position: 'absolute',
         top: -42,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: Palette.primary,
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        zIndex: 1000,
+        ...Platform.select({
+            ios: {
+                shadowColor: Palette.primaryDark,
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.4,
+                shadowRadius: 12,
+            },
+            android: {
+                elevation: 10,
+                shadowColor: Palette.primaryDark,
+            },
+        }),
+    },
+    scanButtonGradient: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 1000,
         borderWidth: 4,
-        borderColor: Palette.primary,
+        borderColor: Palette.white,
     },
     scanButtonActive: {
-        backgroundColor: Palette.primaryDark ?? Palette.primary,
-        transform: [{ scale: 1.1 }],
+        transform: [{ scale: 0.94 }],
     },
 });
 
