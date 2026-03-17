@@ -123,6 +123,7 @@ const Location = () => {
                     showsUserLocation={false}
                     showsCompass={false}
                     onMapReady={handleMapReady}
+                    onPress={handleCurrentLocation}
                     mapPadding={{ top: 100, right: 20, bottom: 380, left: 20 }}
                 >
                     {/* Simulated Route Line */}
