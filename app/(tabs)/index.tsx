@@ -16,13 +16,14 @@ import Message from '@/components/Quick Access/Message';
 import Schedule from '@/components/Quick Access/Schedule';
 import Tasks from '@/components/Quick Access/Tasks/Tasks';
 import SplashScreen from '@/components/SplashScreen/SplashScreen';
+import Location from '@/components/Main/Timetable/Location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useState } from 'react';
 import { View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { runOnJS } from 'react-native-reanimated';
 
-type Screen = 'Home' | 'Settings' | 'Scan' | 'Login' | 'Biometric' | 'PersonalInformation' | 'SecurityPassword' | 'SplashScreen' | 'Schedule' | 'Messages' | 'Grades' | 'Attendance' | 'Courses' | 'Tasks' | 'Achievements' | 'Billing' | 'Register';
+type Screen = 'Home' | 'Settings' | 'Scan' | 'Login' | 'Biometric' | 'PersonalInformation' | 'SecurityPassword' | 'SplashScreen' | 'Schedule' | 'Messages' | 'Grades' | 'Attendance' | 'Courses' | 'Tasks' | 'Achievements' | 'Billing' | 'Register' | 'Location';
 const ScreenContext = createContext({
   currentScreen: 'SplashScreen' as Screen,
   setScreen: (screen: Screen, target?: Screen) => { },
@@ -120,6 +121,7 @@ export default function AppContainer() {
             {currentScreen === 'Achievements' && <Achievements />}
             {currentScreen === 'Billing' && <Billing />}
             {currentScreen === 'Register' && <Register />}
+            {currentScreen === 'Location' && <Location />}
             {currentScreen === 'SplashScreen' && <SplashScreen onFinish={() => setScreen(targetScreen)} />}
             {['Home', 'Settings', 'Scan', 'Billing'].includes(currentScreen) && <NavButtons />}
           </View>

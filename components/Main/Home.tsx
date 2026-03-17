@@ -261,7 +261,11 @@ const Home = () => {
                     </View>
 
                     {/* Upcoming Schedule Modern Alert */}
-                    <TouchableOpacity activeOpacity={0.8} style={styles.upcomingAlertWrapper}>
+                    <TouchableOpacity 
+                        activeOpacity={0.8} 
+                        style={styles.upcomingAlertWrapper}
+                        onPress={() => setScreen('Location' as any)}
+                    >
                         <LinearGradient
                             colors={[Platform.select({ios: Palette.primary + '1A', android: Palette.primary + '25'}) as string, Platform.select({ios: Palette.sky + '08', android: Palette.sky + '12'}) as string]}
                             start={{ x: 0, y: 0 }}
