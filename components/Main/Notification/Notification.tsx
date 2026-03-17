@@ -1,12 +1,26 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, Button, Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Platform,
+  StyleSheet,
+  Alert,
+  LogBox,
+  ScrollView,
+  StatusBar,
+} from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import Constants from 'expo-constants';
 
+// Suppress the Expo Go SDK 53+ warning about remote push tokens.
+LogBox.ignoreLogs([
+  'expo-notifications: Android Push notifications',
+  'addPushTokenListener',
+  'getExpoPushTokenAsync',
+]);
 
-// 1. GLOBAL CONFIGURATION (Must be at the top level of the file)
-// This ensures notifications are handled everywhere, even when backgrounded.
+// ─── FOREGROUND HANDLER ──────────────────────────────────────────────────────
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -17,139 +31,253 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// 2. RESPONSE LISTNER moved inside component for better lifecycle management
+// ─── GLOBAL CLICK LISTENER (top-level — fires even from lock screen) ─────────
+Notifications.addNotificationResponseReceivedListener(response => {
+  const { title, body, data } = response.notification.request.content;
+  const d = data as any;
+  Alert.alert(
+    `🔔 ${title}`,
+    `${body}\n\n📍 ${d?.room ?? ''}\n⏰ ${d?.time ?? ''}\n🆔 ${d?.id ?? ''}`,
+  );
+});
 
-/**
- * Utility function to schedule a local notification with sound and high importance.
- * This ensures it appears even when the phone is "off" (locked) and plays a sound.
- */
-export async function schedulePushNotification(title: string, body: string, data?: any) {
+// ─── SCHEDULE A LOCAL NOTIFICATION ──────────────────────────────────────────
+export async function schedulePushNotification(
+  title: string,
+  body: string,
+  data?: Record<string, any>,
+) {
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: title,
-      body: body,
-      data: data || { screen: 'Notification', detail: 'This came from the system tray!' },
-      sound: true, // Enable sound
-      priority: Notifications.AndroidNotificationPriority.MAX, // High priority for system tray/lock screen
-      sticky: false, // Ensure it can be cleared by user
+      title,
+      body,
+      data: data ?? {
+        source: 'ICI Portal',
+        id: 'ICI-NOTIF-001',
+      },
+      sound: true,
+      priority: Notifications.AndroidNotificationPriority.MAX,
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: 5, 
+      seconds: 3,
     },
   });
 }
 
-/**
- * Function to register for push notifications and set up Android channels.
- * Channels are crucial for sound and importance on Android.
- */
-async function registerForPushNotificationsAsync() {
-  let token;
-
+// ─── SETUP PERMISSIONS + CHANNEL ────────────────────────────────────────────
+async function setupNotifications(): Promise<boolean> {
   if (Platform.OS === 'android') {
-    // Create a notification channel for Android (Mandatory for sound/importance)
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
+    await Notifications.setNotificationChannelAsync('ici-portal', {
+      name: 'ICI Portal Alerts',
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, // Show on lock screen
-      sound: 'default', // Use default sound
+      lightColor: '#0B8B82',
+      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+      sound: 'default',
+      enableVibrate: true,
     });
   }
 
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-      alert('Failed to get notification permissions! Go to settings to enable them.');
-      return;
-    }
-    
-    try {
-      const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-      if (projectId) {
-        token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
-        console.log('Push Token:', token);
-      } else {
-        console.warn('Project ID not found in app.json - Push notifications (external) will not work, but local ones should.');
-      }
-    } catch (e) {
-      console.error('Error getting push token:', e);
-    }
-  } else {
-    console.log('Must use physical device for Push Notifications (External). Local notifications may still work on some simulators.');
-  }
+  if (!Device.isDevice) return true;
 
-  return token;
+  const { status: existing } = await Notifications.getPermissionsAsync();
+  let finalStatus = existing;
+  if (existing !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+  if (finalStatus !== 'granted') {
+    Alert.alert('Permission Required', 'Enable notifications in Settings > Apps > ICI Portal.');
+    return false;
+  }
+  return true;
 }
 
+// ─── STATIC NOTIFICATION DATA ────────────────────────────────────────────────
+type NotifItem = {
+  id: string;
+  icon: string;
+  title: string;
+  body: string;
+  time: string;
+  room?: string;
+  category: string;
+  unread: boolean;
+};
+
+const STATIC_NOTIFICATIONS: NotifItem[] = [
+  {
+    id: 'ICI-SCHEDULE-001',
+    icon: '📘',
+    title: 'Upcoming Class',
+    body: 'Advanced Mathematics starts in 15 minutes at Lab 4B.',
+    time: '08:15 AM',
+    room: 'Lab 4B',
+    category: 'Schedule',
+    unread: true,
+  },
+  {
+    id: 'ICI-MSG-001',
+    icon: '💬',
+    title: 'New Message from Prof. Santos',
+    body: 'Please submit your assignment by end of day.',
+    time: '07:50 AM',
+    room: undefined,
+    category: 'Message',
+    unread: true,
+  },
+  {
+    id: 'ICI-GRADE-001',
+    icon: '📝',
+    title: 'Grade Released',
+    body: 'Your Physics of Motion midterm grade has been posted.',
+    time: 'Yesterday',
+    room: undefined,
+    category: 'Grades',
+    unread: false,
+  },
+  {
+    id: 'ICI-ATTENDANCE-001',
+    icon: '✅',
+    title: 'Attendance Recorded',
+    body: 'Your attendance for Computer Science on Monday was marked Present.',
+    time: 'Yesterday',
+    room: 'Digital Hub',
+    category: 'Attendance',
+    unread: false,
+  },
+  {
+    id: 'ICI-BILLING-001',
+    icon: '💳',
+    title: 'Billing Reminder',
+    body: 'Your tuition fee payment is due on March 31, 2026.',
+    time: 'Mar 15',
+    room: undefined,
+    category: 'Billing',
+    unread: false,
+  },
+];
+
+const CATEGORY_COLORS: Record<string, string> = {
+  Schedule: '#0B8B82',
+  Message: '#3B82F6',
+  Grades: '#8B5CF6',
+  Attendance: '#10B981',
+  Billing: '#F59E0B',
+};
+
+// ─── COMPONENT ───────────────────────────────────────────────────────────────
 const Notification = () => {
-  const notificationListener = useRef<Notifications.Subscription | null>(null);
-  const responseListener = useRef<Notifications.Subscription | null>(null);
+  const foregroundSub = useRef<Notifications.Subscription | null>(null);
+  const [notifications, setNotifications] = useState<NotifItem[]>(STATIC_NOTIFICATIONS);
 
   useEffect(() => {
-    const setupNotifications = async () => {
-      try {
-        await registerForPushNotificationsAsync();
-        
-        // Detailed logging for debugging
-        console.log('Notifications registered. Scheduling sample...');
-        
-        // Trigger a static sample notification immediately when the compone    nt mounts
-        await schedulePushNotification(
-          "Welcome to ICI Portal! 🚀",
-          "If you see this, notifications are working!"
-        );
-      } catch (error) {
-        console.error('Failed to setup notifications:', error);
-      }
+    const init = async () => {
+      const ok = await setupNotifications();
+      if (!ok) return;
+
+      // Send the first static notification automatically
+      const first = STATIC_NOTIFICATIONS[0];
+      await schedulePushNotification(first.title, first.body, {
+        id: first.id,
+        room: first.room,
+        time: first.time,
+        category: first.category,
+      });
     };
+    init();
 
-    setupNotifications();
-
-    // Listener for when a notification is received (foreground)
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      console.log('Notification Received in Foreground:', notification);
-    });
-
-    // 2. RESPONSE LISTNER (Capture Click action)
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      const { title, body } = response.notification.request.content;
-      console.log('User Tapped a Notification!', response);
-      alert(`User Clicked!\n\nTitle: ${title}\nBody: ${body}`);
+    foregroundSub.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('[Notification] Received in foreground:', notification.request.content.title);
     });
 
     return () => {
-      notificationListener.current?.remove();
-      responseListener.current?.remove();
+      foregroundSub.current?.remove();
     };
   }, []);
 
+  const handleItemPress = (item: NotifItem) => {
+    // Mark as read
+    setNotifications(prev =>
+      prev.map(n => (n.id === item.id ? { ...n, unread: false } : n)),
+    );
+
+    Alert.alert(
+      `${item.icon} ${item.title}`,
+      `${item.body}${item.room ? `\n\n📍 Room: ${item.room}` : ''}\n⏰ ${item.time}\n🆔 ${item.id}`,
+    );
+  };
+
+  const handleSendTest = async () => {
+    const ok = await setupNotifications();
+    if (!ok) return;
+    const item = STATIC_NOTIFICATIONS[1];
+    await schedulePushNotification(item.title, item.body, {
+      id: item.id,
+      category: item.category,
+    });
+    Alert.alert('Sent!', 'Minimize the app — notification arrives in 3 seconds. Tap it!');
+  };
+
+  const unreadCount = notifications.filter(n => n.unread).length;
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Notification Settings</Text>
-      <Text style={styles.description}>
-        Notifications are configured with high priority and sound. 
-        They will appear on your lock screen.
-      </Text>
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Test Notification"
-          onPress={async () => {
-            await schedulePushNotification(
-              "ICI Portal Alert! 🔔",
-              "This is a test notification with sound and high priority."
-            );
-          }}
-          color="#0B8B82"
-        />
+      <StatusBar barStyle="dark-content" backgroundColor="#F0F9F9" />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.headerTitle}>Notifications</Text>
+          {unreadCount > 0 && (
+            <Text style={styles.headerSub}>{unreadCount} unread</Text>
+          )}
+        </View>
+        <TouchableOpacity style={styles.testBtn} onPress={handleSendTest} activeOpacity={0.8}>
+          <Text style={styles.testBtnText}>Send Test 🔔</Text>
+        </TouchableOpacity>
       </View>
+
+      {/* List */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
+        {notifications.map(item => {
+          const color = CATEGORY_COLORS[item.category] ?? '#888';
+          return (
+            <TouchableOpacity
+              key={item.id}
+              style={[styles.card, item.unread && styles.cardUnread]}
+              onPress={() => handleItemPress(item)}
+              activeOpacity={0.7}
+            >
+              {/* Unread dot */}
+              {item.unread && <View style={[styles.unreadDot, { backgroundColor: color }]} />}
+
+              {/* Left accent */}
+              <View style={[styles.accent, { backgroundColor: color }]} />
+
+              {/* Icon */}
+              <View style={[styles.iconBox, { backgroundColor: color + '18' }]}>
+                <Text style={styles.iconText}>{item.icon}</Text>
+              </View>
+
+              {/* Content */}
+              <View style={styles.content}>
+                <View style={styles.topRow}>
+                  <Text style={[styles.notifTitle, item.unread && styles.notifTitleBold]}>
+                    {item.title}
+                  </Text>
+                  <Text style={styles.time}>{item.time}</Text>
+                </View>
+                <Text style={styles.body} numberOfLines={2}>{item.body}</Text>
+                <View style={[styles.badge, { backgroundColor: color + '18' }]}>
+                  <Text style={[styles.badgeText, { color }]}>{item.category}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 };
@@ -157,28 +285,132 @@ const Notification = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    backgroundColor: '#F0F9F9',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? (StatusBar as any).currentHeight + 16 : 60,
+    paddingBottom: 16,
     backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5F4F3',
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#0B3D3A',
+  },
+  headerSub: {
+    fontSize: 12,
+    color: '#0B8B82',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  testBtn: {
+    backgroundColor: '#0B8B82',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  testBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 12,
+  },
+  list: {
+    padding: 16,
+    paddingBottom: 120,
+  },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    marginBottom: 12,
+    overflow: 'hidden',
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8 },
+      android: { elevation: 2 },
+    }),
+  },
+  cardUnread: {
+    backgroundColor: '#F0FFFE',
+  },
+  unreadDot: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  accent: {
+    width: 4,
+    height: '100%',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+  },
+  iconBox: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 16,
+    marginVertical: 14,
   },
-  title: {
+  iconText: {
     fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  },
+  content: {
+    flex: 1,
+    paddingLeft: 12,
+    paddingRight: 18,
+    paddingVertical: 14,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 4,
+  },
+  notifTitle: {
+    fontSize: 14,
+    fontWeight: '600',
     color: '#333',
+    flex: 1,
+    marginRight: 8,
   },
-  description: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
+  notifTitleBold: {
+    fontWeight: '800',
+    color: '#0B3D3A',
+  },
+  time: {
+    fontSize: 11,
+    color: '#999',
+    whiteSpace: 'nowrap',
+  } as any,
+  body: {
+    fontSize: 12,
     color: '#666',
+    lineHeight: 17,
+    marginBottom: 8,
   },
-  buttonContainer: {
-    width: '100%',
-    borderRadius: 10,
-    overflow: 'hidden',
-  }
+  badge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
 });
 
 export default Notification;

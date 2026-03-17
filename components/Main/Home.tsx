@@ -159,7 +159,10 @@ const Home = () => {
                             >
                                 {isDarkMode ? <Sun size={20} color={Palette.white} /> : <Moon size={20} color={Palette.white} />}
                             </TouchableOpacity>
-                            <TouchableOpacity style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                            <TouchableOpacity
+                                style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
+                                onPress={() => setScreen('Notification' as any)}
+                            >
                                 <Bell size={20} color={Palette.white} />
                                 <View style={styles.notificationDot} />
                             </TouchableOpacity>
